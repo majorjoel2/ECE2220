@@ -11,15 +11,31 @@ double gameBoard[5][5];
 int dispPrintNum(int inputR, int inputC);
 int dispPrintBoard();
 int gameFillBoard();
+int gameCheckDraw(int draw);
 int gameCheckWin();
 int gameBoardUnique = 0;
-int r, c, i, sumR, sumC, drawCounter, gameCounter;
+int r, c, i, sumR, sumC, drawCounter, gameCounter, gameDraw;
 time_t t;
+char charInput; //10 = Enter, 113 = q, 81 = Q
+char covidStr[] = {'C', 'O', 'V', 'I', 'D'};
 
 int main(int arg, char **argv){
+  gameCounter = 0;
   srand((unsigned) time(&t));
+  drawCounter = 0;
   gameFillBoard();
   dispPrintBoard();
+  printf("Press \'Enter\' to generate a Square (or \'q\' to [Quit]) ");
+  scanf("%c",&charInput);
+  while(!gameCheckWin() && charInput == 10){
+    gameDraw = (rand() % 98) + 1;
+    gameCheckDraw(gameDraw);
+    drawCounter++;
+    printf("%i: %c-%i\n", drawCounter, covidStr[(int) (gameDraw/20)], gameDraw);
+    dispPrintBoard();
+    printf("Press \'Enter\' to generate next Square (or \'q\' to [Quit])");
+    scanf("%c",&charInput);
+  }
   return 1;
 }
 
@@ -75,6 +91,17 @@ int dispPrintBoard(){
     }
   }
   printf("\n------------------------------------\n");
+  return 1;
+}
+
+int gameCheckDraw(int draw){
+  for(r = 0; r < 5; r++){
+    for(c = 0; c < 5; c++){
+      if(gameBoard[r][c] == draw){
+        gameBoard[r][c] = -1;
+      }
+    }
+  }
   return 1;
 }
 
