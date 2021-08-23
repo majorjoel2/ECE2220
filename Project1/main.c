@@ -8,7 +8,8 @@
 #include <time.h>
 
 double gameBoard[5][5];
-int dispPrintCovid();
+int dispPrintNum(int inputR, int inputC);
+int dispPrintBoard();
 int gameFillBoard();
 int gameBoardUnique = 0;
 int r, c, i;
@@ -16,8 +17,8 @@ time_t t;
 
 int main(int arg, char **argv){
   srand((unsigned) time(&t));
-  dispPrintCovid();
   gameFillBoard();
+  dispPrintBoard();
   return 1;
 }
 
@@ -43,7 +44,35 @@ int gameFillBoard(){
   return 1;
 }
 
-int dispPrintCovid(){
+int dispPrintNum(int inputR, int inputC){
+  if(gameBoard[inputR][inputC] < 0){
+    if(gameBoard[inputR][inputC] == -1.1){
+      printf(" Free ");
+    } else {
+      printf("  x   ");
+    }
+  } else {
+    printf("  %i  ", gameBoard[inputR][inputC]);
+    if(gameBoard[inputR][inputC] < 10){
+      printf(" ");
+    }
+  }
+  return 1;
+}
+
+int dispPrintBoard(){
   printf("   C      O      V      I      D\n");
+  printf("------------------------------------\n");
+  printf("|");
+  for(r = 0; r < 5; r++){
+    for(c = 0; c < 5; c++){
+      dispPrintNum(r,c);
+      printf("|");
+    }
+    if(r != 4){
+      printf("\n|------|------|------|------|------|\n");
+    }
+  }
+  printf("\n------------------------------------\n");
   return 1;
 }
