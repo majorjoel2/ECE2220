@@ -36,9 +36,9 @@ int gameFillBoard(){
         }
         gameBoardUnique = 1;
       }
-      printf("%i ", (int) gameBoard[r][c]);
+      //printf("%i ", (int) gameBoard[r][c]);
     }
-    printf("\n");
+    //printf("\n");
   }
   gameBoard[2][2] = -1.1;
   return 1;
@@ -52,7 +52,7 @@ int dispPrintNum(int inputR, int inputC){
       printf("  x   ");
     }
   } else {
-    printf("  %i  ", gameBoard[inputR][inputC]);
+    printf("  %i  ", (int) gameBoard[inputR][inputC]);
     if(gameBoard[inputR][inputC] < 10){
       printf(" ");
     }
@@ -70,7 +70,7 @@ int dispPrintBoard(){
       printf("|");
     }
     if(r != 4){
-      printf("\n|------|------|------|------|------|\n");
+      printf("\n|------|------|------|------|------|\n|");
     }
   }
   printf("\n------------------------------------\n");
