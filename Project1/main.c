@@ -11,8 +11,9 @@ double gameBoard[5][5];
 int dispPrintNum(int inputR, int inputC);
 int dispPrintBoard();
 int gameFillBoard();
+int gameCheckWin();
 int gameBoardUnique = 0;
-int r, c, i;
+int r, c, i, sumR, sumC;
 time_t t;
 
 int main(int arg, char **argv){
@@ -75,4 +76,19 @@ int dispPrintBoard(){
   }
   printf("\n------------------------------------\n");
   return 1;
+}
+
+int gameCheckWin(){
+  for(r = 0; r < 5; r++){
+    sumR = 0;
+    sumC = 0;
+    for(c = 0; c < 5; c++){
+      sumR = sumR + ((int) gameBoard[r][c]);
+      sumC = sumC + ((int) gameBoard[c][r]);
+      if(sumR <= -5 || sumC <= -5){
+        return 1;
+      }
+    }
+  }
+  return 0;
 }
