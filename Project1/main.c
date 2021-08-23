@@ -13,7 +13,7 @@ int dispPrintBoard();
 int gameFillBoard();
 int gameCheckWin();
 int gameBoardUnique = 0;
-int r, c, i, sumR, sumC;
+int r, c, i, sumR, sumC, drawCounter, gameCounter;
 time_t t;
 
 int main(int arg, char **argv){
@@ -89,6 +89,11 @@ int gameCheckWin(){
         return 1;
       }
     }
+  }
+  sumR = gameBoard[0][0] + gameBoard[1][1] + gameBoard[3][3] + gameBoard[4][4];
+  sumC = gameBoard[0][4] + gameBoard[1][3] + gameBoard[3][1] + gameBoard[4][0];
+  if(sumR == -4 || sumC == -4){
+    return 1;
   }
   return 0;
 }
