@@ -10,7 +10,8 @@
 double gameBoard[5][5];
 int dispPrintCovid();
 int gameFillBoard();
-int r, c;
+int gameBoardUnique = 0;
+int r, c, i;
 time_t t;
 
 int main(int arg, char **argv){
@@ -24,6 +25,16 @@ int gameFillBoard(){
   for(r = 0; r < 5; r++){
     for(c = 0; c < 5; c++){
       gameBoard[r][c] = (double) ((rand() % 19) + (c * 20) + 1);
+      gameBoardUnique = r == 0;
+      while(!gameBoardUnique){
+        for(i = (r - 1); i >= 0; i--){
+          if(gameBoard[r][c] == gameBoard[i][c]){
+            i = r;
+            gameBoard[r][c] = (double) ((rand() % 19) + (c * 20) + 1);
+          }
+        }
+        gameBoardUnique = 1;
+      }
       printf("%i ", (int) gameBoard[r][c]);
     }
     printf("\n");
