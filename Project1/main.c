@@ -27,6 +27,7 @@ int main(int arg, char **argv){
     drawCounter = 0;
     gameFillBoard();
     dispPrintBoard();
+    charInput = 0;
     while(charInput != 10 && charInput != 81 && charInput != 113){
       printf("Press \'Enter\' to generate a Square (or \'q\' to [Quit]) ");
       scanf("%c",&charInput);
@@ -38,6 +39,7 @@ int main(int arg, char **argv){
       printf("%i: %c-%i\n", drawCounter, covidStr[(int) (gameDraw/20)], gameDraw);
       dispPrintBoard();
       if(!gameCheckWin()){
+        charInput = 0;
         while(charInput != 10 && charInput != 81 && charInput != 113){
           printf("Press \'Enter\' to generate a Square (or \'q\' to [Quit]) ");
           scanf("%c",&charInput);
@@ -46,6 +48,7 @@ int main(int arg, char **argv){
     }
     printf("You Win! Number of Draws: %i", drawCounter);
     gameCounter++;
+    charInput = 0;
     while(charInput != 10 && charInput != 81 && charInput != 113){
       printf("Press \'Enter\' to play again (or \'q\' to [Quit]) ");
       scanf("%c",&charInput);
