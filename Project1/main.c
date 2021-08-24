@@ -21,8 +21,8 @@ char covidStr[] = {'C', 'O', 'V', 'I', 'D'};
 
 int main(int arg, char **argv){
   gameCounter = 0;
-  charInput = 0;
-  while(charInput != 81 && charInput != 113){
+  charInput = 10;
+  while(charInput == 10){
     srand((unsigned) time(&t));
     drawCounter = 0;
     gameFillBoard();
@@ -46,12 +46,14 @@ int main(int arg, char **argv){
         }
       }
     }
-    printf("You Win! Number of Draws: %i", drawCounter);
-    gameCounter++;
-    charInput = 0;
-    while(charInput != 10 && charInput != 81 && charInput != 113){
-      printf("Press \'Enter\' to play again (or \'q\' to [Quit]) ");
-      scanf("%c",&charInput);
+    if(charInput == 10){
+      printf("You Win! Number of Draws: %i\n", drawCounter);
+      gameCounter++;
+      charInput = 0;
+      while(charInput != 10 && charInput != 81 && charInput != 113){
+        printf("Press \'Enter\' to play again (or \'q\' to [Quit]) ");
+        scanf("%c",&charInput);
+      }
     }
   }
   printf("Games played: %i\n", gameCounter);
