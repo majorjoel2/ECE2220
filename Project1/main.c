@@ -21,21 +21,37 @@ char covidStr[] = {'C', 'O', 'V', 'I', 'D'};
 
 int main(int arg, char **argv){
   gameCounter = 0;
-  srand((unsigned) time(&t));
-  drawCounter = 0;
-  gameFillBoard();
-  dispPrintBoard();
-  printf("Press \'Enter\' to generate a Square (or \'q\' to [Quit]) ");
-  scanf("%c",&charInput);
-  while(!gameCheckWin() && charInput == 10){
-    gameDraw = (rand() % 98) + 1;
-    gameCheckDraw(gameDraw);
-    drawCounter++;
-    printf("%i: %c-%i\n", drawCounter, covidStr[(int) (gameDraw/20)], gameDraw);
+  charInput = 0;
+  while(charInput != 81 && charInput != 113){
+    srand((unsigned) time(&t));
+    drawCounter = 0;
+    gameFillBoard();
     dispPrintBoard();
-    printf("Press \'Enter\' to generate next Square (or \'q\' to [Quit])");
-    scanf("%c",&charInput);
+    while(charInput != 10 && charInput != 81 && charInput != 113){
+      printf("Press \'Enter\' to generate a Square (or \'q\' to [Quit]) ");
+      scanf("%c",&charInput);
+    }
+    while(!gameCheckWin() && charInput == 10){
+      gameDraw = (rand() % 98) + 1;
+      gameCheckDraw(gameDraw);
+      drawCounter++;
+      printf("%i: %c-%i\n", drawCounter, covidStr[(int) (gameDraw/20)], gameDraw);
+      dispPrintBoard();
+      if(!gameCheckWin()){
+        while(charInput != 10 && charInput != 81 && charInput != 113){
+          printf("Press \'Enter\' to generate a Square (or \'q\' to [Quit]) ");
+          scanf("%c",&charInput);
+        }
+      }
+    }
+    printf("You Win! Number of Draws: %i", drawCounter);
+    gameCounter++;
+    while(charInput != 10 && charInput != 81 && charInput != 113){
+      printf("Press \'Enter\' to play again (or \'q\' to [Quit]) ");
+      scanf("%c",&charInput);
+    }
   }
+  printf("Games played: %i\n", gameCounter);
   return 1;
 }
 
