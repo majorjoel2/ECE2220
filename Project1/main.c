@@ -141,6 +141,7 @@ int gameFillBoard(){
 }
 
 int dispPrintNum(int inputR, int inputC){
+  //Check if the number has been drawn or is the free space
   if(gameBoard[inputR][inputC] < 0){
     if(gameBoard[inputR][inputC] == -1.1){
       printf(" Free ");
@@ -148,6 +149,7 @@ int dispPrintNum(int inputR, int inputC){
       printf("  x   ");
     }
   } else {
+    //Print the number and add an extra space if 1-9
     printf("  %i  ", (int) gameBoard[inputR][inputC]);
     if(gameBoard[inputR][inputC] < 10){
       printf(" ");
@@ -161,10 +163,12 @@ int dispPrintBoard(){
   printf("------------------------------------\n");
   printf("|");
   for(r = 0; r < 5; r++){
+    //Print number line
     for(c = 0; c < 5; c++){
       dispPrintNum(r,c);
       printf("|");
     }
+    //Print spacer line
     if(r != 4){
       printf("\n|------|------|------|------|------|\n|");
     }
@@ -174,6 +178,7 @@ int dispPrintBoard(){
 }
 
 int gameCheckDraw(int draw){
+  //check entire array for drawn number and replace with -1 if in array
   for(r = 0; r < 5; r++){
     for(c = 0; c < 5; c++){
       if(gameBoard[r][c] == draw){
@@ -185,6 +190,7 @@ int gameCheckDraw(int draw){
 }
 
 int gameCheckWin(){
+  //Check row and columns for all -1 or -1.1 for free space
   for(r = 0; r < 5; r++){
     sumR = 0;
     sumC = 0;
@@ -196,6 +202,7 @@ int gameCheckWin(){
       }
     }
   }
+  //diagonals include free space so summing rest gives -4 if win
   sumR = gameBoard[0][0] + gameBoard[1][1] + gameBoard[3][3] + gameBoard[4][4];
   sumC = gameBoard[0][4] + gameBoard[1][3] + gameBoard[3][1] + gameBoard[4][0];
   if(sumR == -4 || sumC == -4){
