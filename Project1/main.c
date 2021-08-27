@@ -57,7 +57,7 @@ int main(int arg, char **argv){
   //Time variable to seed random
   time_t t;
   //character input. targeted return values listed
-  char charInput; //10 = Enter, 113 = q, 81 = Q
+  char charInput, dummyRead; //10 = Enter, 113 = q, 81 = Q
   //array used for printing appropriate prefix for drawn number
   char covidStr[] = {'C', 'O', 'V', 'I', 'D'};
 
@@ -77,6 +77,9 @@ int main(int arg, char **argv){
     while(charInput != 10 && charInput != 81 && charInput != 113){
       printf("Press \'Enter\' to generate a Square (or \'q\' to [Quit]) ");
       scanf("%c",&charInput);
+      if(charInput != 10){
+        scanf("%c",&dummyRead);
+      }
     }
     //check win to continue and user must have pressed enter to continue
     while(!gameCheckWin(gameBoard) && charInput == 10){
@@ -95,6 +98,9 @@ int main(int arg, char **argv){
         while(charInput != 10 && charInput != 81 && charInput != 113){
           printf("Press \'Enter\' to generate a Square (or \'q\' to [Quit]) ");
           scanf("%c",&charInput);
+          if(charInput != 10){
+            scanf("%c",&dummyRead);
+          }
         }
       }
     }
@@ -107,6 +113,9 @@ int main(int arg, char **argv){
       while(charInput != 10 && charInput != 81 && charInput != 113){
         printf("Press \'Enter\' to play again (or \'q\' to [Quit]) ");
         scanf("%c",&charInput);
+        if(charInput != 10){
+          scanf("%c",&dummyRead);
+        }
       }
     }
   }
