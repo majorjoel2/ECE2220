@@ -25,11 +25,15 @@ int dispPrintNum(double gameBoardPoint);
 /**
  * This function will print the whole board. It calles dispPrintNum for each
  * number printed.
+ *
+ * @param gameBoardAdr pass by refrence of the 2d game board array
  */
 int dispPrintBoard(double (*gameBoardAdr)[5]);
 /**
  * This function will fill the array gameBoard with unique random numbers per
  * the set range for each column.
+ *
+ * @param gameBoardAdr pass by refrence of the 2d game board array
  */
 int gameFillBoard(double (*gameBoardAdr)[5]);
 /**
@@ -37,6 +41,7 @@ int gameFillBoard(double (*gameBoardAdr)[5]);
  * number drawn is on the board it will clearn the number from the array so that
  * when the board is printed the next time an x is printed
  *
+ * @param gameBoardAdr pass by refrence of the 2d game board array
  * @param draw the number to check
  */
 int gameCheckDraw(double (*gameBoardAdr)[5], int draw);
@@ -44,6 +49,8 @@ int gameCheckDraw(double (*gameBoardAdr)[5], int draw);
  * This function will check all win conditions on the board. If there is a win
  * condition the function will return 1 (True) else the function will
  * return 0 (False)
+ *
+ * @param gameBoardAdr pass by refrence of the 2d game board array
  *
  * @return int (Bool) 1 if win else 0
  */
