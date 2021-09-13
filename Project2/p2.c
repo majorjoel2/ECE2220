@@ -1,6 +1,7 @@
 
 
 #include <stdio.h>
+#include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -46,6 +47,34 @@ char stateAbbreviations[50][3] = {
 };
 
 int main(int arg, char **argv){
+  char loopInput = 10, dummyClear, currentLetter;
+  char validInput;
+
+  while(loopInput != 113){
+    printf("Enter the [c]haracter input for the corresponding choice.\n");
+    printf("[N]ame\n[Y]ears, Party, Office, and State\n[A]ge and Sex\n");
+    printf("C[o]tacts\nContributions and [W]ealth\n[D]isplay all Data\n");
+    printf("[C]lear all Data\n[Q]uit\n");
+    validInput = 0;
+    while(!validInput){
+      scanf("%c", &loopInput);
+      if(loopInput != 10){
+        loopInput = tolower(loopInput);
+        if(loopInput == 110 || loopInput == 121 || loopInput == 97 ||
+           loopInput == 111 || loopInput == 119 || loopInput == 100 ||
+           loopInput == 99 || loopInput == 113){
+          //
+          validInput = 1;
+        } else {
+          printf("Invalid Selection\n");
+        }
+        dummyClear = 0;
+        while(dummyClear != 10){
+          scanf("%c", &dummyClear);
+        }
+      }
+    }
+  }
   return 1;
 }
 
