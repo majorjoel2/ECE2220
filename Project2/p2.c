@@ -102,6 +102,35 @@ int main(int arg, char **argv){
 
           }
         }
+      } else {
+        //null terminate at first index if no prefix entered
+        currentPolitician.prefix[0] = 0;
+      }
+      printf("Enter politician first name: ");
+      scanf("%c", &currentLetter);
+      if(currentLetter != 10){
+        currentPolitician.prefix[0] = currentLetter;
+        i = 1;
+        validInput = 0;
+        while(!validInput){
+          scanf("%c", &currentLetter);
+          if(currentLetter == 10 || currentLetter == 32 || i == 32){
+            validInput = 1;
+            currentPolitician.prefix[i] = ' ';
+            currentPolitician.prefix[i+1] = 0;
+            if(currentLetter == 32 || i == 3){
+              dummyClear = 0;
+              while(dummyClear != 10){
+                scanf("%c", &dummyClear);
+              }
+            }
+          } else {
+
+          }
+        }
+      } else {
+        //set first name to - to indicate none given
+        currentPolitician.prefix[0] = '-';
       }
     }
   }
