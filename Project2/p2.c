@@ -218,6 +218,10 @@ int main(int arg, char **argv){
                 currentPolitician.lastName, currentPolitician.suffix);
       }
     }
+    if(loopInput == 99){
+      //clear all info
+      currentPolitician = setToDefaultPolitician();
+    }
   }
   return 1;
 }
