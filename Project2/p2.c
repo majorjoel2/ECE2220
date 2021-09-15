@@ -99,7 +99,7 @@ int main(int arg, char **argv){
               }
             }
           } else {
-
+            currentPolitician.prefix[i] = currentLetter;
           }
         }
       } else {
@@ -125,7 +125,7 @@ int main(int arg, char **argv){
               }
             }
           } else {
-
+            currentPolitician.prefix[i] = currentLetter;
           }
         }
       } else {
