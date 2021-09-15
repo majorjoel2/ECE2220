@@ -46,9 +46,21 @@ char stateAbbreviations[50][3] = {
   "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
 };
 
+char partyName[5][13] = {
+  "Constitution",
+  "Democratic",
+  "Green",
+  "Libertarian",
+  "Republican"
+};
+
+char partyAbbreviation[5][4] = {
+  "CON", "DEM", "GRE", "LIB", "REP"
+};
+
 int main(int arg, char **argv){
   char loopInput = 10, dummyClear, currentLetter;
-  char validInput;
+  char validInput, validInput2;
   struct idiot currentPolitician = setToDefaultPolitician();
   int i, currentNumber;
 
@@ -206,6 +218,67 @@ int main(int arg, char **argv){
       } else {
         //null terminate at first index if no suffix entered
         currentPolitician.suffix[0] = 0;
+      }
+    }
+    if(loopInput == 121){
+      //Years, party, office, state
+      //years
+      currentNumber = -1;
+      while(currentNumber < 0 || currentNumber > 99){
+        printf("Enter years served (0-99): ");
+        scanf("%d", &currentNumber);
+        if(currentNumber < 0 || currentNumber > 99){
+          printf("Years served out of range!\n");
+        }
+        dummyClear = 0;
+        while(dummyClear != 10){
+          scanf("%c", &dummyClear);
+        }
+      }
+      currentPolitician.yearsServed = currentNumber;
+      //party 3 char
+      validInput2 = 0;
+      while(!validInput2){
+        printf("Party List:\n%s%15s\n%s%15s\n%s%15s\n%s%15s\n%s%15s\n",
+                partyAbbreviation[0], partyName[0],
+                partyAbbreviation[1], partyName[1],
+                partyAbbreviation[2], partyName[2],
+                partyAbbreviation[3], partyName[3],
+                partyAbbreviation[4], partyName[4]);
+        printf("Enter politician party affiliation (Options listed above): ");
+        scanf("%c", &currentLetter);
+        if(currentLetter != 10){
+          currentPolitician.politicalParty[0] = toupper(currentLetter);
+          i = 1;
+          validInput = 0;
+          while(!validInput){
+            scanf("%c", &currentLetter);
+            if(currentLetter == 10 || currentLetter == 32 || i == 3){
+              validInput = 1;
+              currentPolitician.politicalParty[i] = 0;
+              if((currentLetter == 32 || i == 3) && currentLetter != 10){
+                dummyClear = 0;
+                while(dummyClear != 10){
+                  scanf("%c", &dummyClear);
+                }
+              }
+            } else {
+              currentPolitician.politicalParty[i] = toupper(currentLetter);
+            }
+            i++;
+          }
+        } else {
+          //null terminate at first index if no suffix entered
+          currentPolitician.politicalParty[0] = 0;
+        }
+        for(i = 0; i < 5; i++){
+          if(strcmp(partyAbbreviation[i], currentPolitician.politicalParty) == 0){
+            validInput2 = 1;
+          }
+        }
+        if(!validInput2){
+          printf("Invalid party\n");
+        }
       }
     }
     if(loopInput == 97){
