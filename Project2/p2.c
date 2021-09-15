@@ -392,6 +392,13 @@ int main(int arg, char **argv){
       } else {
         printf("Age: %i, Sex: %c\n", currentPolitician.age, currentPolitician.sex);
       }
+      if(currentPolitician.officeHeld[0] == '-'){
+        //only need to check one because all others have error checking
+        printf("Years, party, office, and state not given\n");
+      } else {
+        printf("Years Served: %i, Party Affiliation: %s\n", currentPolitician.yearsServed, currentPolitician.politicalParty);
+        printf("Political Offics: %s, Home State: %s", currentPolitician.officeHeld, currentPolitician.homeState);
+      }
     }
     if(loopInput == 99){
       //clear all info
