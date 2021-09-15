@@ -1,11 +1,21 @@
+/**
+ * Joel Tanner
+ * 08-25-2021
+ *
+ * The goal of this project is to format input and output of data of a
+ * politician.
+ */
 
-
+//Libraries used in this program
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 #include <float.h>
 
+/**
+ * This structure holds all the information being tracked about the politician
+ */
 struct idiot {
   char prefix[6];
   char firstName[34];
@@ -24,8 +34,16 @@ struct idiot {
   long double totalWealth;
 };
 
+/**
+ * This function will create a temp idiot to fill as blank values and then
+ * return the default/blank idiot. This is used to see if input has been
+ * recieved.
+ *
+ * @return struct idiot default values for politician
+ */
 struct idiot setToDefaultPolitician();
 
+//refrence list of state names
 char statesName[50][15] = {
   "Alabama", "Alaska", "Arizona", "Arkansas", "California",
   "Colorado", "Connecticut", "Delaware", "Florida", "Georgia",
@@ -39,6 +57,7 @@ char statesName[50][15] = {
   "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
 };
 
+//refrence list of state abbreviations
 char stateAbbreviations[50][3] = {
   "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
   "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
@@ -47,6 +66,7 @@ char stateAbbreviations[50][3] = {
   "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
 };
 
+//refrence list of party names
 char partyName[5][13] = {
   "Constitution",
   "Democratic",
@@ -55,28 +75,37 @@ char partyName[5][13] = {
   "Republican"
 };
 
+//refrence list of party abbreviations
 char partyAbbreviation[5][4] = {
   "CON", "DEM", "GRE", "LIB", "REP"
 };
 
 int main(int arg, char **argv){
+  //character reads
   char loopInput = 10, dummyClear, currentLetter;
+  //booleans for checking valid input
   char validInput, validInput2;
+  //active data being manipulated
   struct idiot currentPolitician = setToDefaultPolitician();
+  //interator and input
   int i, currentNumber;
+  //more input
   double currentDouble;
   long double currentLongDouble;
 
   while(loopInput != 113){
+    //main menu
     printf("Enter the [c]haracter input for the corresponding choice.\n");
     printf("[N]ame\n[Y]ears, Party, Office, and State\n[A]ge and Sex\n");
     printf("[T]witter and Phone\nContributions and [W]ealth\n[D]isplay all Data\n");
     printf("[C]lear all Data\n[Q]uit\n");
     validInput = 0;
+    //checking to see if input is a valid selection
     while(!validInput){
       scanf("%c", &loopInput);
       if(loopInput != 10){
         loopInput = tolower(loopInput);
+        //possible valid selections
         if(loopInput == 110 || loopInput == 121 || loopInput == 97 ||
            loopInput == 116 || loopInput == 119 || loopInput == 100 ||
            loopInput == 99 || loopInput == 113){
@@ -85,6 +114,7 @@ int main(int arg, char **argv){
         } else {
           printf("Invalid Selection\n");
         }
+        //clear buffer
         dummyClear = 0;
         while(dummyClear != 10){
           scanf("%c", &dummyClear);
@@ -102,8 +132,10 @@ int main(int arg, char **argv){
         validInput = 0;
         while(!validInput){
           scanf("%c", &currentLetter);
+          //top scanning if new line, space, or max length
           if(currentLetter == 10 || currentLetter == 32 || i == 3){
             validInput = 1;
+            //terminate string with ". "
             currentPolitician.prefix[i] = '.';
             currentPolitician.prefix[i+1] = ' ';
             currentPolitician.prefix[i+2] = 0;
@@ -113,7 +145,7 @@ int main(int arg, char **argv){
                 scanf("%c", &dummyClear);
               }
             }
-          } else {
+          } else { //continue scanning
             currentPolitician.prefix[i] = currentLetter;
           }
           i++;
@@ -131,6 +163,7 @@ int main(int arg, char **argv){
         validInput = 0;
         while(!validInput){
           scanf("%c", &currentLetter);
+          //stop scanning if new line, space, or max length
           if(currentLetter == 10 || currentLetter == 32 || i == 32){
             validInput = 1;
             currentPolitician.firstName[i] = ' ';
@@ -154,6 +187,7 @@ int main(int arg, char **argv){
       printf("Enter politician middle initial ([Enter] to skip): ");
       scanf("%c", &currentLetter);
       if(currentLetter != 10){
+        //if a letter exists scan letter and terminate string
         currentPolitician.middleInitial[0] = currentLetter;
         currentPolitician.middleInitial[1] = '.';
         currentPolitician.middleInitial[2] = ' ';
@@ -175,6 +209,7 @@ int main(int arg, char **argv){
         validInput = 0;
         while(!validInput){
           scanf("%c", &currentLetter);
+          //stop scanning if new line, space, or max length
           if(currentLetter == 10 || currentLetter == 32 || i == 32){
             validInput = 1;
             currentPolitician.lastName[i] = ' ';
@@ -203,6 +238,7 @@ int main(int arg, char **argv){
         validInput = 0;
         while(!validInput){
           scanf("%c", &currentLetter);
+          //stop scanning if new line, space, or max length
           if(currentLetter == 10 || currentLetter == 32 || i == 3){
             validInput = 1;
             currentPolitician.suffix[i] = ' ';
@@ -230,6 +266,7 @@ int main(int arg, char **argv){
       while(currentNumber < 0 || currentNumber > 99){
         printf("Enter years served (0-99): ");
         scanf("%d", &currentNumber);
+        //Inform user of invalid entry
         if(currentNumber < 0 || currentNumber > 99){
           printf("Years served out of range!\n");
         }
@@ -280,6 +317,7 @@ int main(int arg, char **argv){
           }
         }
         if(!validInput2){
+          //Inform user of invalid entry
           printf("Invalid party\n");
         }
       }
@@ -349,6 +387,7 @@ int main(int arg, char **argv){
           }
         }
         if(!validInput2){
+          //Inform user of invalid entry
           printf("Invalid state\n");
         }
       }
@@ -376,10 +415,13 @@ int main(int arg, char **argv){
         if(toupper(currentLetter) == 70 || toupper(currentLetter) == 77){
           validInput = 1;
           currentPolitician.sex = toupper(currentLetter);
-          dummyClear = 0;
-          while(dummyClear != 10){
-            scanf("%c", &dummyClear);
-          }
+        } else {
+          //Inform user of invalid entry
+          printf("Invalid Sex.\n");
+        }
+        dummyClear = 0;
+        while(dummyClear != 10){
+          scanf("%c", &dummyClear);
         }
       }
     }
@@ -447,6 +489,7 @@ int main(int arg, char **argv){
           validInput2 = 1;
         }
         if(!validInput2){
+          //Inform user of invalid entry
           printf("Invalid phone number\n");
         }
       }
@@ -459,6 +502,7 @@ int main(int arg, char **argv){
         printf("Enter donations recieved (0-10e50 as float): ");
         scanf("%lf", &currentDouble);
         if(currentDouble < 0 || currentDouble > DBL_MAX){
+          //Inform user of invalid entry
           printf("Contributions out of range!\n");
         }
         dummyClear = 0;
@@ -473,6 +517,7 @@ int main(int arg, char **argv){
         printf("Enter total Wealth (0-10e1000 as float): ");
         scanf("%Lf", &currentLongDouble);
         if(currentLongDouble < 0 || currentLongDouble > LDBL_MAX){
+          //Inform user of invalid entry
           printf("Wealth out of range!\n");
         }
         dummyClear = 0;
