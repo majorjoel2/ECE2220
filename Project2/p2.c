@@ -6,19 +6,19 @@
 #include <string.h>
 
 struct idiot {
-  char prefix[3];
-  char firstName[32];
-  char middleInitial;
-  char lastName[32];
-  char suffix[3];
+  char prefix[6];
+  char firstName[34];
+  char middleInitial[4];
+  char lastName[34];
+  char suffix[6];
   int age;
   char sex;
-  char officeHeld[32];
+  char officeHeld[33];
   int yearsServed;
-  char politicalParty[3];
-  char homeState[2];
-  char twitter[15];
-  char phoneNumber[13];
+  char politicalParty[4];
+  char homeState[3];
+  char twitter[16];
+  char phoneNumber[14];
   double donationsReceived;
   long double totalWealth;
 };
@@ -49,6 +49,8 @@ char stateAbbreviations[50][3] = {
 int main(int arg, char **argv){
   char loopInput = 10, dummyClear, currentLetter;
   char validInput;
+  struct idiot currentPolitician = setToDefaultPolitician();
+  int i;
 
   while(loopInput != 113){
     printf("Enter the [c]haracter input for the corresponding choice.\n");
@@ -74,6 +76,34 @@ int main(int arg, char **argv){
         }
       }
     }
+    if(loopInput == 110){
+      //Name Input
+      //Prefix 3 char
+      printf("Enter politician prefix ([Enter] to skip): ");
+      scanf("%c", &currentLetter);
+      if(currentLetter != 10){
+        currentPolitician.prefix[0] = currentLetter;
+        i = 1;
+        validInput = 0;
+        while(!validInput){
+          scanf("%c", &currentLetter);
+          if(currentLetter == 10 || currentLetter == 32 || i == 3){
+            validInput = 1;
+            currentPolitician.prefix[i] = '.';
+            currentPolitician.prefix[i+1] = ' ';
+            currentPolitician.prefix[i+2] = 0;
+            if(currentLetter == 32 || i == 3){
+              dummyClear = 0;
+              while(dummyClear != 10){
+                scanf("%c", &dummyClear);
+              }
+            }
+          } else {
+
+          }
+        }
+      }
+    }
   }
   return 1;
 }
@@ -82,7 +112,7 @@ struct idiot setToDefaultPolitician(){
   struct idiot default_politician;
   default_politician.prefix[0] = '-';
   default_politician.firstName[0] = '-';
-  default_politician.middleInitial = '-';
+  default_politician.middleInitial[0] = '-';
   default_politician.lastName[0] = '-';
   default_politician.suffix[0] = '-';
   default_politician.age = -1;
