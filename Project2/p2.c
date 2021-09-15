@@ -50,7 +50,7 @@ int main(int arg, char **argv){
   char loopInput = 10, dummyClear, currentLetter;
   char validInput;
   struct idiot currentPolitician = setToDefaultPolitician();
-  int i;
+  int i, currentNumber;
 
   while(loopInput != 113){
     printf("Enter the [c]haracter input for the corresponding choice.\n");
@@ -208,6 +208,32 @@ int main(int arg, char **argv){
         currentPolitician.suffix[0] = 0;
       }
     }
+    if(loopInput == 97){
+      //Age and Sex
+      currentNumber = -1;
+      while(currentNumber < 18 || currentNumber > 99){
+        printf("Enter politican age (18-99): ");
+        scanf("%d", &currentNumber);
+        if(currentNumber < 18 || currentNumber > 99){
+          printf("Age out of range!\n");
+        }
+      }
+      currentPolitician.age = currentNumber;
+      //Sex 1 char
+      validInput = 0;
+      while(!validInput){
+        printf("Enter politician Sex ('M' or 'F'): ");
+        scanf("%c", &currentLetter);
+        if(toupper(currentLetter) == 70 || toupper(currentLetter) == 77){
+          validInput = 1;
+          currentPolitician.sex = toupper(currentLetter);
+          dummyClear = 0;
+          while(dummyClear != 10){
+            scanf("%c", &dummyClear);
+          }
+        }
+      }
+    }
     if(loopInput == 100){
       //display all info
       if(currentPolitician.firstName[0] == '-' || currentPolitician.lastName[0] == '-'){
@@ -216,6 +242,12 @@ int main(int arg, char **argv){
         printf("Name: %s%s%s%s%s\n", currentPolitician.prefix,
                 currentPolitician.firstName, currentPolitician.middleInitial,
                 currentPolitician.lastName, currentPolitician.suffix);
+      }
+      if(currentPolitician.age == -1){
+        //Only need to check age because both or neither complete because of error checking
+        printf("Age and Sex not given.\n");
+      } else {
+        printf("Age: %i, Sex: %c\n", currentPolitician.age, currentPolitician.sex);
       }
     }
     if(loopInput == 99){
