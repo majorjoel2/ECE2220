@@ -188,6 +188,44 @@ int main(int arg, char **argv){
         //set last name to - to indicate none given
         currentPolitician.lastName[0] = '-';
       }
+      //Suffix 3 char
+      printf("Enter politician suffix ([Enter] to skip): ");
+      scanf("%c", &currentLetter);
+      if(currentLetter != 10){
+        currentPolitician.suffix[0] = currentLetter;
+        i = 1;
+        validInput = 0;
+        while(!validInput){
+          scanf("%c", &currentLetter);
+          if(currentLetter == 10 || currentLetter == 32 || i == 3){
+            validInput = 1;
+            currentPolitician.suffix[i] = '.';
+            currentPolitician.suffix[i+1] = ' ';
+            currentPolitician.suffix[i+2] = 0;
+            if(currentLetter == 32 || i == 3){
+              dummyClear = 0;
+              while(dummyClear != 10){
+                scanf("%c", &dummyClear);
+              }
+            }
+          } else {
+            currentPolitician.suffix[i] = currentLetter;
+          }
+        }
+      } else {
+        //null terminate at first index if no suffix entered
+        currentPolitician.suffix[0] = 0;
+      }
+    }
+    if(loopInput = 100){
+      //display all info
+      if(currentPolitician.firstName[0] == '-' || currentPolitician.lastName == '-'){
+        printf("Name not given.\n");
+      } else {
+        printf("Name: %s%s%s%s%s\n", currentPolitician.prefix,
+                currentPolitician.firstName, currentPolitician.middleInitial,
+                currentPolitician.lastName, currentPolitician.suffix);
+      }
     }
   }
   return 1;
