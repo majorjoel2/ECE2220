@@ -519,6 +519,7 @@ int main(int arg, char **argv){
     if(loopInput == 99){
       //clear all info
       currentPolitician = setToDefaultPolitician();
+      printf("Data Cleared\n");
     }
   }
   return 1;
