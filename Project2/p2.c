@@ -106,31 +106,60 @@ int main(int arg, char **argv){
         //null terminate at first index if no prefix entered
         currentPolitician.prefix[0] = 0;
       }
+      //first name 32 char
       printf("Enter politician first name: ");
       scanf("%c", &currentLetter);
       if(currentLetter != 10){
-        currentPolitician.prefix[0] = currentLetter;
+        currentPolitician.firstName[0] = currentLetter;
         i = 1;
         validInput = 0;
         while(!validInput){
           scanf("%c", &currentLetter);
           if(currentLetter == 10 || currentLetter == 32 || i == 32){
             validInput = 1;
-            currentPolitician.prefix[i] = ' ';
-            currentPolitician.prefix[i+1] = 0;
-            if(currentLetter == 32 || i == 3){
+            currentPolitician.firstName[i] = ' ';
+            currentPolitician.firstName[i+1] = 0;
+            if(currentLetter == 32 || i == 32){
               dummyClear = 0;
               while(dummyClear != 10){
                 scanf("%c", &dummyClear);
               }
             }
           } else {
-            currentPolitician.prefix[i] = currentLetter;
+            currentPolitician.firstName[i] = currentLetter;
           }
         }
       } else {
         //set first name to - to indicate none given
-        currentPolitician.prefix[0] = '-';
+        currentPolitician.firstName[0] = '-';
+      }
+      //Middle Initial 1 char
+      printf("Enter politician middle initial ([Enter] to skip): ");
+      scanf("%c", &currentLetter);
+      if(currentLetter != 10){
+        currentPolitician.middleInitial[0] = currentLetter;
+        i = 1;
+        validInput = 0;
+        while(!validInput){
+          scanf("%c", &currentLetter);
+          if(currentLetter == 10 || currentLetter == 32 || i == 1){
+            validInput = 1;
+            currentPolitician.middleInitial[i] = '.';
+            currentPolitician.middleInitial[i+1] = ' ';
+            currentPolitician.middleInitial[i+2] = 0;
+            if(currentLetter == 32 || i == 1){
+              dummyClear = 0;
+              while(dummyClear != 10){
+                scanf("%c", &dummyClear);
+              }
+            }
+          } else {
+            currentPolitician.middleInitial[i] = currentLetter;
+          }
+        }
+      } else {
+        //null terminate at first index if no prefix entered
+        currentPolitician.middleInitial[0] = 0;
       }
     }
   }
