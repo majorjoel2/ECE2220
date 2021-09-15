@@ -10,7 +10,7 @@ struct idiot {
   char firstName[34];
   char middleInitial[4];
   char lastName[34];
-  char suffix[6];
+  char suffix[5];
   int age;
   char sex;
   char officeHeld[33];
@@ -92,7 +92,7 @@ int main(int arg, char **argv){
             currentPolitician.prefix[i] = '.';
             currentPolitician.prefix[i+1] = ' ';
             currentPolitician.prefix[i+2] = 0;
-            if(currentLetter == 32 || i == 3){
+            if((currentLetter == 32 || i == 3) && currentLetter != 10){
               dummyClear = 0;
               while(dummyClear != 10){
                 scanf("%c", &dummyClear);
@@ -101,6 +101,7 @@ int main(int arg, char **argv){
           } else {
             currentPolitician.prefix[i] = currentLetter;
           }
+          i++;
         }
       } else {
         //null terminate at first index if no prefix entered
@@ -119,7 +120,7 @@ int main(int arg, char **argv){
             validInput = 1;
             currentPolitician.firstName[i] = ' ';
             currentPolitician.firstName[i+1] = 0;
-            if(currentLetter == 32 || i == 32){
+            if((currentLetter == 32 || i == 32) && currentLetter != 10){
               dummyClear = 0;
               while(dummyClear != 10){
                 scanf("%c", &dummyClear);
@@ -128,6 +129,7 @@ int main(int arg, char **argv){
           } else {
             currentPolitician.firstName[i] = currentLetter;
           }
+          i++;
         }
       } else {
         //set first name to - to indicate none given
@@ -138,24 +140,12 @@ int main(int arg, char **argv){
       scanf("%c", &currentLetter);
       if(currentLetter != 10){
         currentPolitician.middleInitial[0] = currentLetter;
-        i = 1;
-        validInput = 0;
-        while(!validInput){
-          scanf("%c", &currentLetter);
-          if(currentLetter == 10 || currentLetter == 32 || i == 1){
-            validInput = 1;
-            currentPolitician.middleInitial[i] = '.';
-            currentPolitician.middleInitial[i+1] = ' ';
-            currentPolitician.middleInitial[i+2] = 0;
-            if(currentLetter == 32 || i == 1){
-              dummyClear = 0;
-              while(dummyClear != 10){
-                scanf("%c", &dummyClear);
-              }
-            }
-          } else {
-            currentPolitician.middleInitial[i] = currentLetter;
-          }
+        currentPolitician.middleInitial[1] = '.';
+        currentPolitician.middleInitial[2] = ' ';
+        currentPolitician.middleInitial[3] = 0;
+        dummyClear = 0;
+        while(dummyClear != 10){
+          scanf("%c", &dummyClear);
         }
       } else {
         //null terminate at first index if no prefix entered
@@ -174,7 +164,7 @@ int main(int arg, char **argv){
             validInput = 1;
             currentPolitician.lastName[i] = ' ';
             currentPolitician.lastName[i+1] = 0;
-            if(currentLetter == 32 || i == 32){
+            if((currentLetter == 32 || i == 32) && currentLetter != 10){
               dummyClear = 0;
               while(dummyClear != 10){
                 scanf("%c", &dummyClear);
@@ -183,6 +173,7 @@ int main(int arg, char **argv){
           } else {
             currentPolitician.lastName[i] = currentLetter;
           }
+          i++;
         }
       } else {
         //set last name to - to indicate none given
@@ -199,10 +190,9 @@ int main(int arg, char **argv){
           scanf("%c", &currentLetter);
           if(currentLetter == 10 || currentLetter == 32 || i == 3){
             validInput = 1;
-            currentPolitician.suffix[i] = '.';
-            currentPolitician.suffix[i+1] = ' ';
-            currentPolitician.suffix[i+2] = 0;
-            if(currentLetter == 32 || i == 3){
+            currentPolitician.suffix[i] = ' ';
+            currentPolitician.suffix[i+1] = 0;
+            if((currentLetter == 32 || i == 3) && currentLetter != 10){
               dummyClear = 0;
               while(dummyClear != 10){
                 scanf("%c", &dummyClear);
@@ -211,15 +201,16 @@ int main(int arg, char **argv){
           } else {
             currentPolitician.suffix[i] = currentLetter;
           }
+          i++;
         }
       } else {
         //null terminate at first index if no suffix entered
         currentPolitician.suffix[0] = 0;
       }
     }
-    if(loopInput = 100){
+    if(loopInput == 100){
       //display all info
-      if(currentPolitician.firstName[0] == '-' || currentPolitician.lastName == '-'){
+      if(currentPolitician.firstName[0] == '-' || currentPolitician.lastName[0] == '-'){
         printf("Name not given.\n");
       } else {
         printf("Name: %s%s%s%s%s\n", currentPolitician.prefix,
