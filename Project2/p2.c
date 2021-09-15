@@ -161,6 +161,33 @@ int main(int arg, char **argv){
         //null terminate at first index if no prefix entered
         currentPolitician.middleInitial[0] = 0;
       }
+      //ladt name 32 char
+      printf("Enter politician last name: ");
+      scanf("%c", &currentLetter);
+      if(currentLetter != 10){
+        currentPolitician.lastName[0] = currentLetter;
+        i = 1;
+        validInput = 0;
+        while(!validInput){
+          scanf("%c", &currentLetter);
+          if(currentLetter == 10 || currentLetter == 32 || i == 32){
+            validInput = 1;
+            currentPolitician.lastName[i] = ' ';
+            currentPolitician.lastName[i+1] = 0;
+            if(currentLetter == 32 || i == 32){
+              dummyClear = 0;
+              while(dummyClear != 10){
+                scanf("%c", &dummyClear);
+              }
+            }
+          } else {
+            currentPolitician.lastName[i] = currentLetter;
+          }
+        }
+      } else {
+        //set last name to - to indicate none given
+        currentPolitician.lastName[0] = '-';
+      }
     }
   }
   return 1;
