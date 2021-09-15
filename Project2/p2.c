@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
+#include <float.h>
 
 struct idiot {
   char prefix[6];
@@ -63,6 +64,8 @@ int main(int arg, char **argv){
   char validInput, validInput2;
   struct idiot currentPolitician = setToDefaultPolitician();
   int i, currentNumber;
+  double currentDouble;
+  long double currentLongDouble;
 
   while(loopInput != 113){
     printf("Enter the [c]haracter input for the corresponding choice.\n");
@@ -359,6 +362,10 @@ int main(int arg, char **argv){
         if(currentNumber < 18 || currentNumber > 99){
           printf("Age out of range!\n");
         }
+        dummyClear = 0;
+        while(dummyClear != 10){
+          scanf("%c", &dummyClear);
+        }
       }
       currentPolitician.age = currentNumber;
       //Sex 1 char
@@ -444,6 +451,37 @@ int main(int arg, char **argv){
         }
       }
     }
+    if(loopInput == 119){
+      //contributions and wealth
+      //contributions
+      currentDouble = -1;
+      while(currentDouble < 0 || currentDouble > DBL_MAX){
+        printf("Enter donations recieved (0-10e50 as float): ");
+        scanf("%lf", &currentDouble);
+        if(currentDouble < 0 || currentDouble > DBL_MAX){
+          printf("Contributions out of range!\n");
+        }
+        dummyClear = 0;
+        while(dummyClear != 10){
+          scanf("%c", &dummyClear);
+        }
+      }
+      currentPolitician.donationsReceived = currentDouble;
+      //wealth
+      currentLongDouble = -1;
+      while(currentLongDouble < 0 || currentLongDouble > LDBL_MAX){
+        printf("Enter total Wealth (0-10e1000 as float): ");
+        scanf("%Lf", &currentLongDouble);
+        if(currentLongDouble < 0 || currentLongDouble > LDBL_MAX){
+          printf("Wealth out of range!\n");
+        }
+        dummyClear = 0;
+        while(dummyClear != 10){
+          scanf("%c", &dummyClear);
+        }
+      }
+      currentPolitician.totalWealth = currentLongDouble;
+    }
     if(loopInput == 100){
       //display all info
       if(currentPolitician.firstName[0] == '-' || currentPolitician.lastName[0] == '-'){
@@ -470,6 +508,12 @@ int main(int arg, char **argv){
         printf("Twitter handle and phone number not given.\n");
       } else {
         printf("Twitter: @%s, Phone Number: %s\n", currentPolitician.twitter, currentPolitician.phoneNumber);
+      }
+      if(currentPolitician.donationsReceived < 0 || currentPolitician.totalWealth < 0){
+        printf("Donations and Wealth not given.\n");
+      } else {
+        printf("Donations: $%.2lf\n", currentPolitician.donationsReceived);
+        printf("Wealth: $%.2Lf\n", currentPolitician.totalWealth);
       }
     }
     if(loopInput == 99){
