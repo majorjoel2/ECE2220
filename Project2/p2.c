@@ -67,7 +67,7 @@ int main(int arg, char **argv){
   while(loopInput != 113){
     printf("Enter the [c]haracter input for the corresponding choice.\n");
     printf("[N]ame\n[Y]ears, Party, Office, and State\n[A]ge and Sex\n");
-    printf("C[o]tacts\nContributions and [W]ealth\n[D]isplay all Data\n");
+    printf("[T]witter and Phone\nContributions and [W]ealth\n[D]isplay all Data\n");
     printf("[C]lear all Data\n[Q]uit\n");
     validInput = 0;
     while(!validInput){
@@ -75,7 +75,7 @@ int main(int arg, char **argv){
       if(loopInput != 10){
         loopInput = tolower(loopInput);
         if(loopInput == 110 || loopInput == 121 || loopInput == 97 ||
-           loopInput == 111 || loopInput == 119 || loopInput == 100 ||
+           loopInput == 116 || loopInput == 119 || loopInput == 100 ||
            loopInput == 99 || loopInput == 113){
           //
           validInput = 1;
@@ -291,8 +291,7 @@ int main(int arg, char **argv){
           scanf("%c", &currentLetter);
           if(currentLetter == 10 || i == 32){
             validInput = 1;
-            currentPolitician.officeHeld[i] = ' ';
-            currentPolitician.officeHeld[i+1] = 0;
+            currentPolitician.officeHeld[i] = 0;
             if(i == 32 && currentLetter != 10){
               dummyClear = 0;
               while(dummyClear != 10){
@@ -347,7 +346,7 @@ int main(int arg, char **argv){
           }
         }
         if(!validInput2){
-          printf("Invalid party\n");
+          printf("Invalid state\n");
         }
       }
     }
@@ -377,6 +376,74 @@ int main(int arg, char **argv){
         }
       }
     }
+    if(loopInput == 116){
+      //twitter and phone number
+      //twitter
+      printf("Enter twitter handle: @");
+      scanf("%c", &currentLetter);
+      if(currentLetter != 10){
+        currentPolitician.twitter[0] = currentLetter;
+        i = 1;
+        validInput = 0;
+        while(!validInput){
+          scanf("%c", &currentLetter);
+          if(currentLetter == 10 || currentLetter == 32 || i == 15){
+            validInput = 1;
+            currentPolitician.twitter[i] = 0;
+            if((currentLetter == 32 || i == 15) && currentLetter != 10){
+              dummyClear = 0;
+              while(dummyClear != 10){
+                scanf("%c", &dummyClear);
+              }
+            }
+          } else {
+            currentPolitician.twitter[i] = currentLetter;
+          }
+          i++;
+        }
+      } else {
+        //set twitter handle to - to indicate none given
+        currentPolitician.twitter[0] = '-';
+      }
+      //phone number
+      validInput2 = 0;
+      while(!validInput2){
+        printf("Enter politician phone number (Format: (111)222-3333): ");
+        scanf("%c", &currentLetter);
+        if(currentLetter != 10){
+          currentPolitician.phoneNumber[0] = currentLetter;
+          i = 1;
+          validInput = 0;
+          while(!validInput){
+            scanf("%c", &currentLetter);
+            if(currentLetter == 10 || currentLetter == 32 || i == 13){
+              validInput = 1;
+              currentPolitician.phoneNumber[i] = 0;
+              if((currentLetter == 32 || i == 13) && currentLetter != 10){
+                dummyClear = 0;
+                while(dummyClear != 10){
+                  scanf("%c", &dummyClear);
+                }
+              }
+            } else {
+              currentPolitician.phoneNumber[i] = currentLetter;
+            }
+            i++;
+          }
+        } else {
+          //null terminate at first index if no homeState entered
+          currentPolitician.phoneNumber[0] = 0;
+        }
+        if(currentPolitician.phoneNumber[0] == '(' &&
+           currentPolitician.phoneNumber[4] == ')' &&
+           currentPolitician.phoneNumber[8] == '-'){
+          validInput2 = 1;
+        }
+        if(!validInput2){
+          printf("Invalid phone number\n");
+        }
+      }
+    }
     if(loopInput == 100){
       //display all info
       if(currentPolitician.firstName[0] == '-' || currentPolitician.lastName[0] == '-'){
@@ -394,10 +461,15 @@ int main(int arg, char **argv){
       }
       if(currentPolitician.officeHeld[0] == '-'){
         //only need to check one because all others have error checking
-        printf("Years, party, office, and state not given\n");
+        printf("Years, party, office, and state not given.\n");
       } else {
         printf("Years Served: %i, Party Affiliation: %s\n", currentPolitician.yearsServed, currentPolitician.politicalParty);
-        printf("Political Offics: %s, Home State: %s", currentPolitician.officeHeld, currentPolitician.homeState);
+        printf("Political Offics: %s, Home State: %s\n", currentPolitician.officeHeld, currentPolitician.homeState);
+      }
+      if(currentPolitician.twitter[0] == '-'){
+        printf("Twitter handle and phone number not given.\n");
+      } else {
+        printf("Twitter: @%s, Phone Number: %s\n", currentPolitician.twitter, currentPolitician.phoneNumber);
       }
     }
     if(loopInput == 99){
