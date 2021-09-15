@@ -268,11 +268,81 @@ int main(int arg, char **argv){
             i++;
           }
         } else {
-          //null terminate at first index if no suffix entered
+          //null terminate at first index if no party entered
           currentPolitician.politicalParty[0] = 0;
         }
         for(i = 0; i < 5; i++){
           if(strcmp(partyAbbreviation[i], currentPolitician.politicalParty) == 0){
+            validInput2 = 1;
+          }
+        }
+        if(!validInput2){
+          printf("Invalid party\n");
+        }
+      }
+      //office held
+      printf("Enter office held: ");
+      scanf("%c", &currentLetter);
+      if(currentLetter != 10){
+        currentPolitician.officeHeld[0] = currentLetter;
+        i = 1;
+        validInput = 0;
+        while(!validInput){
+          scanf("%c", &currentLetter);
+          if(currentLetter == 10 || i == 32){
+            validInput = 1;
+            currentPolitician.officeHeld[i] = ' ';
+            currentPolitician.officeHeld[i+1] = 0;
+            if(i == 32 && currentLetter != 10){
+              dummyClear = 0;
+              while(dummyClear != 10){
+                scanf("%c", &dummyClear);
+              }
+            }
+          } else {
+            currentPolitician.officeHeld[i] = currentLetter;
+          }
+          i++;
+        }
+      } else {
+        //set office held to - to indicate none given
+        currentPolitician.officeHeld[0] = '-';
+      }
+      //state
+      validInput2 = 0;
+      while(!validInput2){
+        printf("State Abbreviation list:\n");
+        for(i = 0; i < 50; i++){
+          printf("%s%17s\n", stateAbbreviations[i], statesName[i]);
+        }
+        printf("Enter politician home state (Options listed above): ");
+        scanf("%c", &currentLetter);
+        if(currentLetter != 10){
+          currentPolitician.homeState[0] = toupper(currentLetter);
+          i = 1;
+          validInput = 0;
+          while(!validInput){
+            scanf("%c", &currentLetter);
+            if(currentLetter == 10 || currentLetter == 32 || i == 3){
+              validInput = 1;
+              currentPolitician.homeState[i] = 0;
+              if((currentLetter == 32 || i == 3) && currentLetter != 10){
+                dummyClear = 0;
+                while(dummyClear != 10){
+                  scanf("%c", &dummyClear);
+                }
+              }
+            } else {
+              currentPolitician.homeState[i] = toupper(currentLetter);
+            }
+            i++;
+          }
+        } else {
+          //null terminate at first index if no homeState entered
+          currentPolitician.homeState[0] = 0;
+        }
+        for(i = 0; i < 50; i++){
+          if(strcmp(stateAbbreviations[i], currentPolitician.homeState) == 0){
             validInput2 = 1;
           }
         }
