@@ -14,7 +14,7 @@ union dataBytes {
 char readBit(char byte, char bitPosition);
 void setBit(char *byte, char bitPosition);
 void clearBit(char *byte, char bitPosition);
-char generateParity(char inputData[8]);
+char generateParity(union dataBytes inputData);
 
 /*
 Enter hex: 0x41424344
@@ -57,12 +57,17 @@ B[3] << 7: 0
 */
 
 int main(int arg, char **argv){
-  /*
+
   union dataBytes inputNum;
   int i = 0, j = 0;
   printf("Enter hex: 0x");
   scanf("%X", &inputNum.number);
 
+  char pbits = 0;
+  pbits = generateParity(inputNum);
+  printf("Parity: %X\n", pbits);
+
+  /*
   for(i = 0; i < 4; i++){
     printf("Number[%i] = %c\n", i, (char)inputNum.bytes[i]);
     for(j = 0; j < 8; j++){
@@ -96,9 +101,21 @@ P3 = D4 + D5 + D6 + D7 + D8 + D9 + D10
 P4 = D11 + D12 + D13 + D14 + D15
 */
 
-char generateParity(char inputData[4]){
+char generateParity(union dataBytes inputData){
+  int parity[5][10] = {{0, 1, 3, 4, 6, 8, 10, 11, 13, 15},
+{0, 2, 3, 5, 6, 9, 10, 12, 13, 0},
+{1, 2, 3, 7, 8, 9, 10, 14, 15, 0},
+{4, 5, 6, 7, 8, 9, 10, 0, 0, 0},
+{11, 12, 13, 14, 15, 0, 0, 0, 0, 0}};
+  int paritySize[5] = {10, 9, 9, 7, 5};
   char parityBits = 0;
-  //int currentBit = 0;
-
+  int currentBit = 0, i = 0, j = 0;
+  for(j = 0; j < 5; j++){
+    currentBit = 0;
+    for(i = 0; i < paritySize[j]; i++){
+      currentBit += readBit(inputData.bytes[parity[j][i]/8], (parity[j][i])%4);
+    }
+    (currentBit%2 == 1) ? setBit(&parityBits, j) : clearBit(&parityBits, j);
+  }
   return parityBits;
 }
