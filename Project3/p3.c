@@ -15,6 +15,7 @@ char readBit(char byte, char bitPosition);
 void setBit(char *byte, char bitPosition);
 void clearBit(char *byte, char bitPosition);
 char generateParity(union dataBytes inputData);
+void encodeBits(union dataBytes *inputData, char parity);
 
 /*
 Enter hex: 0x41424344
@@ -67,6 +68,9 @@ int main(int arg, char **argv){
   pbits = generateParity(inputNum);
   printf("Parity: %X\n", pbits);
 
+  encodeBits(&inputNum, pbits);
+  printf("Encode: %X\n", inputNum.number);
+
   /*
   for(i = 0; i < 4; i++){
     printf("Number[%i] = %c\n", i, (char)inputNum.bytes[i]);
@@ -113,9 +117,29 @@ char generateParity(union dataBytes inputData){
   for(j = 0; j < 5; j++){
     currentBit = 0;
     for(i = 0; i < paritySize[j]; i++){
-      currentBit += readBit(inputData.bytes[parity[j][i]/8], (parity[j][i])%4);
+      currentBit += readBit(inputData.bytes[parity[j][i]/8], (parity[j][i])%8);
     }
     (currentBit%2 == 1) ? setBit(&parityBits, j) : clearBit(&parityBits, j);
   }
   return parityBits;
+}
+
+void encodeBits(union dataBytes *inputData, char parity){
+  int newDataPosition[16] = {2, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20};
+  int newParityPosition[5] = {0, 1, 3, 7, 15};
+  int i;
+  for(i = 15; i >= 0; i--){
+    if(readBit(inputData->bytes[i/8], i%8) == 1){
+      setBit(&inputData->bytes[newDataPosition[i]/8], newDataPosition[i]%8);
+    } else {
+      clearBit(&inputData->bytes[newDataPosition[i]/8], newDataPosition[i]%8);
+    }
+  }
+  for(i = 4; i >= 0; i--){
+    if(readBit(parity, i) == 1){
+      setBit(&inputData->bytes[newParityPosition[i]/8], newParityPosition[i]%8);
+    } else {
+      clearBit(&inputData->bytes[newParityPosition[i]/8], newParityPosition[i]%8);
+    }
+  }
 }
