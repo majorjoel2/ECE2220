@@ -19,6 +19,43 @@ void encodeBits(union dataBytes *inputData, char parity);
 char decodeBits(union dataBytes *inputData);
 
 int main(int arg, char **argv){
+  char exitLoop = 0, activeRead = 0, dummyRead = 0;
+  char inputValue[16];
+  char inputCopy[16];
+  int i = 0;
+
+  while(!exitLoop){
+    printf("To Encode two characters [cc] type \"Encode cc\"\n");
+    printf("To Decode hex number [0xNNNNNN] type \"Decode 0xNNNNNN\"\n");
+    printf("To Quit type \"Quit\"\n");
+    //read command 15 char max
+    i = 0;
+    scanf("%c", &activeRead);
+    while(activeRead != 10 && i < 16){
+      inputValue[i] = tolower(activeRead);
+      scanf("%c", &activeRead);
+      i++;
+    }
+    if(i == 16){
+      dummyRead = 0;
+      while(dummyRead != 10){
+        scanf("%c", &dummyRead);
+      }
+    }
+    inputValue[i] = 0;
+    strcpy(inputCopy, inputValue);
+    inputCopy[6] = 0;
+    if(strcmp(inputCopy, "encode") == 0){
+      //Encoding
+    } else if(strcmp(inputCopy, "decode") == 0){
+      //Decoding
+    } else if(strcmp(inputCopy, "quit") == 0){
+      //Exit
+      exitLoop = 1;
+    } else {
+      printf("Invalid Input\n");
+    }
+  }
   return 1;
 }
 
