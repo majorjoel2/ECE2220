@@ -19,10 +19,11 @@ void encodeBits(union dataBytes *inputData, char parity);
 char decodeBits(union dataBytes *inputData);
 
 int main(int arg, char **argv){
-  char exitLoop = 0, activeRead = 0, dummyRead = 0;
+  char exitLoop = 0, activeRead = 0, dummyRead = 0, pBits = 0;
   char inputValue[16];
   char inputCopy[16];
   int i = 0;
+  union dataBytes userInput;
 
   while(!exitLoop){
     printf("To Encode two characters [cc] type \"Encode cc\"\n");
@@ -32,7 +33,7 @@ int main(int arg, char **argv){
     i = 0;
     scanf("%c", &activeRead);
     while(activeRead != 10 && i < 16){
-      inputValue[i] = tolower(activeRead);
+      inputValue[i] = activeRead;
       scanf("%c", &activeRead);
       i++;
     }
@@ -45,11 +46,33 @@ int main(int arg, char **argv){
     inputValue[i] = 0;
     strcpy(inputCopy, inputValue);
     inputCopy[6] = 0;
-    if(strcmp(inputCopy, "encode") == 0){
+    if(strcmp(inputCopy, "Encode") == 0){
       //Encoding
-    } else if(strcmp(inputCopy, "decode") == 0){
+      printf("Code Letters Entered: %c%c\n", inputValue[7], inputValue[8]);
+      userInput.bytes[0] = inputValue[7];
+      userInput.bytes[1] = inputValue[8];
+      printf("Code Value (Hex): 0x%X\n", userInput.number);
+      printf("Code Value (Binary): ");
+      for(i = 15; i >=0; i--){
+        printf("%i", readBit(userInput.bytes[i/8], i%8));
+      }
+      printf("\n");
+      pBits = generateParity(userInput);
+      printf("Parity Bits: ");
+      for(i = 4; i >=0; i--){
+        printf("%i", readBit(pBits, i));
+      }
+      printf("\n");
+      encodeBits(&userInput, pBits);
+      printf("Encoded Value (Hex): 0x%X\n", userInput.number);
+      printf("Encoded Value (Binary): ");
+      for(i = 20; i >=0; i--){
+        printf("%i", readBit(userInput.bytes[i/8], i%8));
+      }
+      printf("\n");
+    } else if(strcmp(inputCopy, "Decode") == 0){
       //Decoding
-    } else if(strcmp(inputCopy, "quit") == 0){
+    } else if(strcmp(inputCopy, "Quit") == 0){
       //Exit
       exitLoop = 1;
     } else {
