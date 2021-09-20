@@ -22,6 +22,8 @@ int main(int arg, char **argv){
   char exitLoop = 0, activeRead = 0, dummyRead = 0, pBits = 0;
   char inputValue[16];
   char inputCopy[16];
+  char hexValue[7];
+  char newHexValue[5];
   int i = 0;
   union dataBytes userInput;
 
@@ -72,6 +74,40 @@ int main(int arg, char **argv){
       printf("\n");
     } else if(strcmp(inputCopy, "Decode") == 0){
       //Decoding
+      for(i = 0; i < 8; i++){
+        hexValue[i] = inputValue[i+9];
+      }
+      //userInput.number = (int)strtol(hexValue, NULL, 16);
+      sscanf(hexValue, "%X", &userInput.number);
+      for(i = 0; i < 6; i++){
+        printf("   %c ", hexValue[i]);
+      }
+      printf("\n");
+      printf("---%i ", readBit(userInput.bytes[2], 4));
+      for(i = 19; i >= 0; i--){
+        printf("%i", readBit(userInput.bytes[i/8], i%8));
+        if(i%4 == 0) {
+          printf(" ");
+        }
+      }
+      printf("\n");
+      printf("   ^ ^^^^  ^^^ ^^^^  ^^^  ^\n");
+      pBits = decodeBits(&userInput);
+      printf("     ");
+      for(i = 15; i >= 0; i--){
+        printf("%i", readBit(userInput.bytes[i/8], i%8));
+        if(i%4 == 0) {
+          printf(" ");
+        }
+      }
+      printf("\n");
+      sprintf(newHexValue, "%X",userInput.number);
+      printf("     ");
+      for(i = 0; i < 4; i++){
+        printf("  %c  ", newHexValue[i]);
+      }
+      printf("\n");
+      printf("=        \'%c\'       \'%c\'\n", userInput.bytes[1], userInput.bytes[0]);
     } else if(strcmp(inputCopy, "Quit") == 0){
       //Exit
       exitLoop = 1;
