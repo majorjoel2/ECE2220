@@ -56,6 +56,17 @@ int main(int argc, char *argv[]){
     }
     printf("Encoded Message: %s\n", messageInput);
   }
+  if(toupper(argv[1][0]) == 'D'){
+    //decode
+    for(i = 0, j = 0; i < strlen(messageInput); i++){
+      if(messageInput[i] > 64){
+        //letter
+        decodeLetter(messageInput, keyOrder[j%10], offsetVal, i);
+        j++;
+      }
+    }
+    printf("Decoded Message: %s\n", messageInput);
+  }
   return 1;
 }
 
