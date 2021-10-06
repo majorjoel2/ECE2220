@@ -43,7 +43,19 @@ int main(int argc, char *argv[]){
     }
   }
   sscanf(argv[3], "%i", &offsetVal);
+  offsetVal = offsetVal % 26;
   strcpy(messageInput, argv[4]);
+  if(toupper(argv[1][0]) == 'E'){
+    //encode
+    for(i = 0, j = 0; i < strlen(messageInput); i++){
+      if(messageInput[i] > 64){
+        //letter
+        encodeLetter(messageInput, keyOrder[j%10], offsetVal, i);
+        j++;
+      }
+    }
+    printf("Encoded Message: %s\n", messageInput);
+  }
   return 1;
 }
 
