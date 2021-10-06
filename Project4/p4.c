@@ -24,9 +24,6 @@ void decodeLetter(char *message, int keyNum, int offset, int currentIndex);
 
 int main(int argc, char *argv[]){
   int i = 0, j = 0, offsetVal;
-  for(i = 0; i < argc; i++){
-    printf("arg[%i] = %s\tLen:%li\n", i, argv[i], strlen(argv[i]));
-  }
   int keyOrder[10] = {0,1,2,3,4,5,6,7,8,9};
   char messageInput[31];
   for(i = 0, j = 0; i < strlen(argv[2]); i++){
