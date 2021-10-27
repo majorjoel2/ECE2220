@@ -3,3 +3,6 @@ p5:
 
 one:
 	./p5.out american-english Romans.txt
+
+two:
+	./p5.out american-english TheDeclarationOfIndependence.txt
