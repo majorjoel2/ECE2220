@@ -9,6 +9,8 @@ int numberOfLines(FILE *inputFile);
 int lengthOfLine(FILE * inputFile);
 
 int main(int argc, char *argv[]){
+  char **lines;
+
   char dictLocation[64] = "/usr/share/dict/";
   printf("Dictionary: %p\n", fopen(strcat(dictLocation, argv[1]), "r"));
   FILE *inputFile = fopen(argv[2], "r");
@@ -19,9 +21,11 @@ int main(int argc, char *argv[]){
   printf("NOL: %i\n", nol);
   int i, *len;
   len = (int *)malloc(nol*sizeof(int));
+  lines = (char **)malloc(nol*sizeof(char));
   for(i = 0; i < nol; i++){
     len[i] = lengthOfLine(inputFile);
     printf("Line Len %i = %i\n", i, len[i]);
+    lines[i] = (char *)malloc(len[i]*sizeof(char));
   }
   return 0;
 }
