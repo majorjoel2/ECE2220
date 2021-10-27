@@ -7,7 +7,8 @@
 
 int numberOfLines(FILE *inputFile);
 int lengthOfLine(FILE *inputFile);
-int dictBinarySearch(char **dictionary, int first, int last, char *word);
+int lengthOfDict(FILE *inputFile);
+int dictBinarySearch(char **dictionary, int *wordlen, int first, int last, char *word);
 void loadMemFromFile(FILE *fileToLoad, char **memPointer, int numOfLines, int *lineLengths);
 
 int main(int argc, char *argv[]){
@@ -25,21 +26,27 @@ int main(int argc, char *argv[]){
   printf("NOL: %i\n", nol);
   int i, *len, *dictLen;
   len = (int *)malloc(nol*sizeof(int));
+  if(len == NULL) printf("ERROR: Failed to allocate len\n");
   lines = (char **)malloc(nol*sizeof(char*));
+  if(lines == NULL) printf("ERROR: Failed to allocate lines\n");
   for(i = 0; i < nol; i++){
     len[i] = lengthOfLine(inputFile);
     //printf("Line Len %i = %i\n", i, len[i]);
     lines[i] = (char *)malloc(len[i]*sizeof(char));
+    if(lines[i] == NULL) printf("ERROR: Failed to allocate lines[%i]\n", i);
   }
   dictLen = (int *)malloc(dictl*sizeof(int));
+  if(dictLen == NULL) printf("ERROR: Failed to allocate dictLen\n");
   dict = (char **)malloc(dictl*sizeof(char*));
+  if(dict == NULL) printf("ERROR: Failed to allocate dict\n");
   for(i = 0; i <dictl; i++){
-    dictLen[i] = lengthOfLine(dictFile);
+    dictLen[i] = lengthOfDict(dictFile);
     //printf("Dict line Len %i = %i\n", i, dictLen[i]);
     dict[i] = (char *)malloc(dictLen[i]*sizeof(char));
+    if(dict[i] == NULL) printf("ERROR: Failed to allocate dict[%i]\n", i);
   }
   loadMemFromFile(inputFile, lines, nol, len);
-  //loadMemFromFile(dictFile, dict, dictl, dictLen);
+  loadMemFromFile(dictFile, dict, dictl, dictLen);
 
   /*printf("Dict 102384: ");
   for(i = 0; i < dictLen[102400]; i++){
@@ -47,12 +54,16 @@ int main(int argc, char *argv[]){
   }
   printf("\n");*/
 
-  printf("len 894 %i\n", len[894]);
+  /*printf("len 894 %i\n", len[894]);
   printf("TXT 894: ");
   for(i = 0; i < len[894]; i++){
     printf("%c", *((*(lines+894))+i));//lines[896][i]);
   }
-  printf("\n");
+  printf("\n");*/
+
+  //printf("dict 102400: %s\n", dict[500]);
+
+  printf("Search for A: %i\n", dictBinarySearch(dict, dictLen, 0, dictl-1, "Sus"));
 
   return 0;
 }
@@ -85,16 +96,51 @@ int lengthOfLine(FILE * inputFile){
   return output;
 }
 
-int dictBinarySearch(char **dictionary, int first, int last, char *word){
-  int i;
-  if(last >= first){
-    int middle = 1 + (last-1) / 2;
-    char *wordLower, *dictWordLower;
-    wordLower = (char *)malloc(strlen(word)*sizeof(char));
-    for(i = 0; i < strlen(word); i++){
-      wordLower[i] = tolower(word[i]);
-    }
+int lengthOfDict(FILE * inputFile){
+  int output = 0;
+  char c;
+  for(c = getc(inputFile); c != '\n' && c != EOF; c = getc(inputFile)){
+    output++;
   }
+  //c = getc(inputFile);
+  return ++output;
+}
+
+int dictBinarySearch(char **dictionary, int *wordlen, int first, int last, char *word){
+  int i, middle;
+  char *wordLower, *dictWordLower;
+  wordLower = (char *)malloc(strlen(word)*sizeof(char));
+  if(wordLower == NULL) printf("ERROR: Failed to allocate wordLower\n");
+  for(i = 0; i < strlen(word); i++){
+    wordLower[i] = tolower(word[i]);
+  }
+
+  while(first <= last){
+    middle = first + (last-first) / 2;
+
+    dictWordLower = (char *)malloc(wordlen[middle]*sizeof(char));
+    if(dictWordLower == NULL) printf("ERROR: Failed to allocate dictWordLower\n");
+    for(i = 0; i < wordlen[middle]; i++){
+      dictWordLower[i] = tolower(dictionary[middle][i]);
+    }
+    dictWordLower[wordlen[middle]-1] = 0;
+
+    printf("Searching %i/%i/%s\n", middle, strcmp(wordLower, dictWordLower), dictWordLower);
+
+    if(strcmp(wordLower, dictWordLower) == 0){
+      free(wordLower);free(dictWordLower);
+      return middle;
+    }
+
+    if(strcmp(wordLower, dictWordLower) > 0){
+      first = middle + 1;
+    } else {
+      last = middle - 1;
+    }
+
+    free(dictWordLower);
+  }
+
   return -1;
 }
 
