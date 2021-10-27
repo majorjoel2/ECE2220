@@ -10,6 +10,7 @@ int lengthOfLine(FILE *inputFile);
 int lengthOfDict(FILE *inputFile);
 int dictBinarySearch(char **dictionary, int *wordlen, int first, int last, char *word);
 void loadMemFromFile(FILE *fileToLoad, char **memPointer, int numOfLines, int *lineLengths);
+int searchFileByLine(char **file, int *lens, int start, int end, int *lineFound, int *charFound, char *word);
 
 int main(int argc, char *argv[]){
   char **lines, **dict;
@@ -63,7 +64,13 @@ int main(int argc, char *argv[]){
 
   //printf("dict 102400: %s\n", dict[500]);
 
-  printf("Search for A: %i\n", dictBinarySearch(dict, dictLen, 0, dictl-1, "Sus"));
+  //printf("Search for A: %i\n", dictBinarySearch(dict, dictLen, 0, dictl-1, "Sus"));
+
+  int fLN = 0, fCOL = 0;
+  printf("wordLen: %i\n", searchFileByLine(lines, len, 9, nol, &fLN, &fCOL, "to"));
+  printf("ln: %i\tcol: %i\n", fLN, fCOL);
+  printf("wordLen: %i\n", searchFileByLine(lines, len, fLN, nol, &fLN, &fCOL, "to"));
+  printf("ln: %i\tcol: %i\n", fLN, fCOL);
 
   return 0;
 }
@@ -125,7 +132,7 @@ int dictBinarySearch(char **dictionary, int *wordlen, int first, int last, char 
     }
     dictWordLower[wordlen[middle]-1] = 0;
 
-    printf("Searching %i/%i/%s\n", middle, strcmp(wordLower, dictWordLower), dictWordLower);
+    //printf("Searching %i/%i/%s\n", middle, strcmp(wordLower, dictWordLower), dictWordLower);
 
     if(strcmp(wordLower, dictWordLower) == 0){
       free(wordLower);free(dictWordLower);
@@ -160,4 +167,33 @@ void loadMemFromFile(FILE *fileToLoad, char **memPointer, int numOfLines, int *l
     }
   }
   rewind(fileToLoad);
+}
+
+int searchFileByLine(char **fileSearch, int *lens, int start, int end, int *lineFound, int *charFound, char *word){
+  int wordLength = strlen(word);
+  int i;
+  char *found;
+  for(i = start; i < end; i++){
+    found = strstr(fileSearch[i], word);
+    if(start == *lineFound && *charFound != 0){
+      char *subString;
+      subString = (char *)memcpy((void *)subString, (void *)(&fileSearch[start][*charFound+wordLength]), lens[start]-*charFound);
+      printf("Total: %s\nSub:%s", fileSearch[start], subString);
+      found = strstr(subString, word);
+      if(found){
+        printf("Found %i, %p, %p\n", i, found, subString);
+        *lineFound = i;
+        *charFound = ((int)(found-subString)) + *charFound + wordLength;
+        return wordLength;
+      }
+    } else {
+      if(found){
+        printf("Found %i, %p, %p\n", i, found, fileSearch[i]);
+        *lineFound = i;
+        *charFound = (int)(found-fileSearch[i]);
+        return wordLength;
+      }
+    }
+  }
+  return -1;
 }
