@@ -14,15 +14,16 @@ int searchFileByLine(char **file, int *lens, int start, int end, int *lineFound,
 void writeMemToFile(FILE *fileToSave, char **memPointer, int numOfLines, int *lineLengths);
 void dumpMem(char ***memPointer, int numOfLines, int **lineLengths);
 void allocateMem(FILE *openFile, char ***memPointer, int *numOfLines, int **lineLengths);
+void replaceWord(char **memPointer, int *lineLengths, int lineIndex, int charIndex, int oldWordLength, char *newWord);
 
 int main(int argc, char *argv[]){
   char **lines, **dict;
 
   char dictLocation[64] = "/usr/share/dict/";
-  FILE *dictFile = fopen(strcat(dictLocation, argv[1]), "r");
+  FILE *dictFile = fopen(strcat(dictLocation, argv[3]), "r");
   if(dictFile == NULL) printf("ERROR: Failed to load Dictionary\n");
   //printf("Dictionary: %p\n", dictFile);
-  FILE *inputFile = fopen(argv[2], "r");
+  FILE *inputFile = fopen(argv[1], "r");
   if(inputFile == NULL) printf("ERROR: Failed to load Input File\n");
   //printf("Input File: %p\n", inputFile);
 
@@ -33,10 +34,12 @@ int main(int argc, char *argv[]){
   loadMemFromFile(inputFile, lines, fileNOL, fileLineLengths);
   loadMemFromFile(dictFile, dict, dictNOL, dictLineLengths);
 
-  /*FILE *outputFile;
-  outputFile = fopen(argv[3], "w");
+  //replaceWord(lines, fileLineLengths, 5, 5, 3, "This is a realllllly loooooong test");
+
+  FILE *outputFile;
+  outputFile = fopen(argv[2], "w");
   writeMemToFile(outputFile, lines, fileNOL, fileLineLengths);
-  fclose(outputFile);*/
+  fclose(outputFile);
 
   /*printf("Dict 102384: ");
   for(i = 0; i < dictLen[102400]; i++){
@@ -226,4 +229,26 @@ void allocateMem(FILE *openFile, char ***memPointer, int *numOfLines, int **line
     (*memPointer)[i] = (char *)malloc(((*lineLengths)[i])*sizeof(char));
     if((*memPointer)[i] == NULL) printf("ERROR: Failed to allocate memPointer[%i]\nCode: %p\n", i, openFile);
   }
+}
+
+void replaceWord(char **memPointer, int *lineLengths, int lineIndex, int charIndex, int oldWordLength, char *newWord){
+  int oldLineLength = lineLengths[lineIndex];
+  int newLineLength = oldLineLength - oldWordLength + strlen(newWord);
+  char *newLine = (char *)malloc(newLineLength*sizeof(char));
+  if(newLine == NULL) printf("ERROR: Failed to allocate newLine\n");
+  lineLengths[lineIndex] = newLineLength;
+  char *subString, *subString2;
+  subString = (char *)malloc(charIndex*sizeof(char));
+  if(subString == NULL) printf("ERROR: Failed to allocate subString\n");
+  subString = (char *)memcpy((void *)subString, (void *)memPointer[lineIndex], charIndex);
+  strcpy(newLine, subString);
+  strcat(newLine, newWord);
+  subString2 = (char *)malloc((newLineLength - charIndex - strlen(newWord))*sizeof(char));
+  if(subString2 == NULL) printf("ERROR: Failed to allocate subString2\n");
+  subString2 = (char *)memcpy((void *)subString2, (void *)(&memPointer[lineIndex][charIndex + oldWordLength]), newLineLength - charIndex - strlen(newWord));
+  strcat(newLine, subString2);
+  free(memPointer[lineIndex]);
+  memPointer[lineIndex] = (char *)malloc(newLineLength*sizeof(char));
+  if(memPointer[lineIndex] == NULL) printf("ERROR: Failed to allocate memPointer[%i]\n", lineIndex);
+  strcpy(memPointer[lineIndex], newLine);
 }
