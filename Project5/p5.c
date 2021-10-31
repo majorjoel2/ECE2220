@@ -17,15 +17,24 @@ void allocateMem(FILE *openFile, char ***memPointer, int *numOfLines, int **line
 void replaceWord(char **memPointer, int *lineLengths, int lineIndex, int charIndex, int oldWordLength, char *newWord);
 
 int main(int argc, char *argv[]){
+
+  if(argc != 4){
+    printf("Wrong number of args\n");
+    return 1;
+  }
   char **lines, **dict;
 
   char dictLocation[64] = "/usr/share/dict/";
   FILE *dictFile = fopen(strcat(dictLocation, argv[3]), "r");
-  if(dictFile == NULL) printf("ERROR: Failed to load Dictionary\n");
-  //printf("Dictionary: %p\n", dictFile);
+  if(dictFile == NULL){
+    printf("ERROR: Failed to load Dictionary\n");
+    return 1;
+  }
   FILE *inputFile = fopen(argv[1], "r");
-  if(inputFile == NULL) printf("ERROR: Failed to load Input File\n");
-  //printf("Input File: %p\n", inputFile);
+  if(inputFile == NULL) {
+    printf("ERROR: Failed to load Input File\n");
+    return 1;
+  }
 
   int fileNOL = 0, *fileLineLengths, dictNOL = 0, *dictLineLengths;
   allocateMem(inputFile, &lines, &fileNOL, &fileLineLengths);
@@ -34,35 +43,53 @@ int main(int argc, char *argv[]){
   loadMemFromFile(inputFile, lines, fileNOL, fileLineLengths);
   loadMemFromFile(dictFile, dict, dictNOL, dictLineLengths);
 
-  //replaceWord(lines, fileLineLengths, 5, 5, 3, "This is a realllllly loooooong test");
+  int exitLoop = 0;
+  while(exitLoop == 0){
+    printf("[SP]Spell check\n[SE]Search\n[SR]Search and Replace\n[SA]Save\n[EX]Exit\n");
+    char optionInput[32];
+    scanf("%s", optionInput);
+
+    if(tolower(optionInput[0]) == 's' && tolower(optionInput[1]) == 'p'){
+      //spell check
+      int exitSP = 0, line, length, word;
+      char spellingWord[128];
+      while(exitSP == 0){
+
+        if(isalpha(dict[line][length]) != 0){
+          printf("is alpha\n");
+          spellingWord[word] = dict[line][length];
+          word++;
+        }
+
+        if(isalpha(dict[line][length]) == 0 && word != 0){
+          printf("found word\n");
+          //found a word
+          spellingWord[word] = 0;
+          if(dictBinarySearch(dict, dictLineLengths, 0, dictNOL, spellingWord) == -1){
+            printf("Word not found %s:%i:%i\n", spellingWord, line, length);
+          }
+          word = 0;
+        }
+
+        length++;
+        if(length >= fileLineLengths[line]){
+          printf("new line\n");
+          length = 0;
+          line++;
+          word = 0;
+        }
+        if(line > fileNOL){
+          exitSP = 1;
+        }
+      }
+
+    }
+  }
 
   FILE *outputFile;
   outputFile = fopen(argv[2], "w");
   writeMemToFile(outputFile, lines, fileNOL, fileLineLengths);
   fclose(outputFile);
-
-  /*printf("Dict 102384: ");
-  for(i = 0; i < dictLen[102400]; i++){
-    printf("%c", dict[102400][i]);
-  }
-  printf("\n");*/
-
-  /*printf("len 894 %i\n", len[894]);
-  printf("TXT 894: ");
-  for(i = 0; i < len[894]; i++){
-    printf("%c", *((*(lines+894))+i));//lines[896][i]);
-  }
-  printf("\n");*/
-
-  //printf("dict 102400: %s\n", dict[500]);
-
-  //printf("Search for A: %i\n", dictBinarySearch(dict, dictLen, 0, dictl-1, "Sus"));
-
-  /*int fLN = 0, fCOL = 0;
-  printf("wordLen: %i\n", searchFileByLine(lines, fileLineLengths, 9, fileNOL, &fLN, &fCOL, "to"));
-  printf("ln: %i\tcol: %i\n", fLN, fCOL);
-  printf("wordLen: %i\n", searchFileByLine(lines, fileLineLengths, fLN, fileNOL, &fLN, &fCOL, "to"));
-  printf("ln: %i\tcol: %i\n", fLN, fCOL);*/
 
   return 0;
 }
