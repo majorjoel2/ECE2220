@@ -12,48 +12,31 @@ int dictBinarySearch(char **dictionary, int *wordlen, int first, int last, char 
 void loadMemFromFile(FILE *fileToLoad, char **memPointer, int numOfLines, int *lineLengths);
 int searchFileByLine(char **file, int *lens, int start, int end, int *lineFound, int *charFound, char *word);
 void writeMemToFile(FILE *fileToSave, char **memPointer, int numOfLines, int *lineLengths);
+void dumpMem(char ***memPointer, int numOfLines, int **lineLengths);
+void allocateMem(FILE *openFile, char ***memPointer, int *numOfLines, int **lineLengths);
 
 int main(int argc, char *argv[]){
   char **lines, **dict;
 
   char dictLocation[64] = "/usr/share/dict/";
   FILE *dictFile = fopen(strcat(dictLocation, argv[1]), "r");
-  printf("Dictionary: %p\n", dictFile);
+  if(dictFile == NULL) printf("ERROR: Failed to load Dictionary\n");
+  //printf("Dictionary: %p\n", dictFile);
   FILE *inputFile = fopen(argv[2], "r");
-  printf("Input File: %p\n", inputFile);
-  printf("1: %li\t", ftell(inputFile));
-  int nol = numberOfLines(inputFile);
-  int dictl = numberOfLines(dictFile);
-  printf("4: %li\n", ftell(inputFile));
-  printf("NOL: %i\n", nol);
-  int i, *len, *dictLen;
-  len = (int *)malloc(nol*sizeof(int));
-  if(len == NULL) printf("ERROR: Failed to allocate len\n");
-  lines = (char **)malloc(nol*sizeof(char*));
-  if(lines == NULL) printf("ERROR: Failed to allocate lines\n");
-  for(i = 0; i < nol; i++){
-    len[i] = lengthOfLine(inputFile);
-    //printf("Line Len %i = %i\n", i, len[i]);
-    lines[i] = (char *)malloc(len[i]*sizeof(char));
-    if(lines[i] == NULL) printf("ERROR: Failed to allocate lines[%i]\n", i);
-  }
-  dictLen = (int *)malloc(dictl*sizeof(int));
-  if(dictLen == NULL) printf("ERROR: Failed to allocate dictLen\n");
-  dict = (char **)malloc(dictl*sizeof(char*));
-  if(dict == NULL) printf("ERROR: Failed to allocate dict\n");
-  for(i = 0; i <dictl; i++){
-    dictLen[i] = lengthOfDict(dictFile);
-    //printf("Dict line Len %i = %i\n", i, dictLen[i]);
-    dict[i] = (char *)malloc(dictLen[i]*sizeof(char));
-    if(dict[i] == NULL) printf("ERROR: Failed to allocate dict[%i]\n", i);
-  }
-  loadMemFromFile(inputFile, lines, nol, len);
-  loadMemFromFile(dictFile, dict, dictl, dictLen);
+  if(inputFile == NULL) printf("ERROR: Failed to load Input File\n");
+  //printf("Input File: %p\n", inputFile);
 
-  FILE *outputFile;
+  int fileNOL = 0, *fileLineLengths, dictNOL = 0, *dictLineLengths;
+  allocateMem(inputFile, &lines, &fileNOL, &fileLineLengths);
+  allocateMem(inputFile, &dict, &dictNOL, &dictLineLengths);
+
+  loadMemFromFile(inputFile, lines, fileNOL, fileLineLengths);
+  loadMemFromFile(dictFile, dict, dictNOL, dictLineLengths);
+
+  /*FILE *outputFile;
   outputFile = fopen(argv[3], "w");
-  writeMemToFile(outputFile, lines, nol, len);
-  fclose(outputFile);
+  writeMemToFile(outputFile, lines, fileNOL, fileLineLengths);
+  fclose(outputFile);*/
 
   /*printf("Dict 102384: ");
   for(i = 0; i < dictLen[102400]; i++){
@@ -73,9 +56,9 @@ int main(int argc, char *argv[]){
   //printf("Search for A: %i\n", dictBinarySearch(dict, dictLen, 0, dictl-1, "Sus"));
 
   /*int fLN = 0, fCOL = 0;
-  printf("wordLen: %i\n", searchFileByLine(lines, len, 9, nol, &fLN, &fCOL, "to"));
+  printf("wordLen: %i\n", searchFileByLine(lines, fileLineLengths, 9, fileNOL, &fLN, &fCOL, "to"));
   printf("ln: %i\tcol: %i\n", fLN, fCOL);
-  printf("wordLen: %i\n", searchFileByLine(lines, len, fLN, nol, &fLN, &fCOL, "to"));
+  printf("wordLen: %i\n", searchFileByLine(lines, fileLineLengths, fLN, fileNOL, &fLN, &fCOL, "to"));
   printf("ln: %i\tcol: %i\n", fLN, fCOL);*/
 
   return 0;
@@ -84,7 +67,7 @@ int main(int argc, char *argv[]){
 int numberOfLines(FILE *inputFile){
   int output = 0;
   char c, cLast;
-  printf("2: %li\t", ftell(inputFile));
+  //printf("2: %li\t", ftell(inputFile));
   for(c = getc(inputFile); c != EOF; c = getc(inputFile)){
     if(c == '\n'){
       output++;
@@ -94,7 +77,7 @@ int numberOfLines(FILE *inputFile){
   if(cLast != '\n'){
     output++;
   }
-  printf("3: %li\t", ftell(inputFile));
+  //printf("3: %li\t", ftell(inputFile));
   rewind(inputFile);
   return output;
 }
@@ -187,14 +170,14 @@ int searchFileByLine(char **fileSearch, int *lens, int start, int end, int *line
       //printf("Total: %s\nSub:%s", fileSearch[start], subString);
       found = strstr(subString, word);
       if(found){
-        printf("Found %i, %p, %p\n", i, found, subString);
+        //printf("Found %i, %p, %p\n", i, found, subString);
         *lineFound = i;
         *charFound = ((int)(found-subString)) + *charFound + wordLength;
         return wordLength;
       }
     } else {
       if(found){
-        printf("Found %i, %p, %p\n", i, found, fileSearch[i]);
+        //printf("Found %i, %p, %p\n", i, found, fileSearch[i]);
         *lineFound = i;
         *charFound = (int)(found-fileSearch[i]);
         return wordLength;
@@ -218,5 +201,29 @@ void writeMemToFile(FILE *fileToSave, char **memPointer, int numOfLines, int *li
       //printf("c:i:j:mem\t%i:%i:%i:%i\n", c, i, j, memPointer[i][j]);
       //printf("%c", memPointer[i][j]);
     }
+  }
+}
+
+void dumpMem(char ***memPointer, int numOfLines, int **lineLengths){
+  int i;
+  for(i = 0; i < numOfLines; i++){
+    free(*memPointer[i]);
+  }
+  free(*memPointer);
+  free(*lineLengths);
+}
+
+void allocateMem(FILE *openFile, char ***memPointer, int *numOfLines, int **lineLengths){
+  int i;
+  *numOfLines = numberOfLines(openFile);
+  *lineLengths = (int *)malloc(*numOfLines*sizeof(int));
+  if(*lineLengths == NULL) printf("ERROR: Failed to allocate lineLengths\nCode: %p\n", openFile);
+  *memPointer = (char **)malloc(*numOfLines*sizeof(char*));
+  if(*memPointer == NULL) printf("ERROR: Failed to allocate memPointer\nCode: %p\n", openFile);
+  for(i = 0; i < *numOfLines; i++){
+    (*lineLengths)[i] = lengthOfLine(openFile);
+    //printf("Line Len %i = %i\n", i, len[i]);
+    (*memPointer)[i] = (char *)malloc(((*lineLengths)[i])*sizeof(char));
+    if((*memPointer)[i] == NULL) printf("ERROR: Failed to allocate memPointer[%i]\nCode: %p\n", i, openFile);
   }
 }
