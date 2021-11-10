@@ -1,3 +1,12 @@
+/**
+ * Joel Tanner
+ * 10-13-2021
+ *
+ * The goal of this project is to manipulate text files.
+ *
+ * Known Issues
+ * Spell check doesn't save new words or check new dictionary
+ */
 
 //Libraries used in this program
 #include <stdio.h>
@@ -5,17 +14,31 @@
 #include <stdlib.h>
 #include <string.h>
 
+//Get's number of lines of the passed in file
 int numberOfLines(FILE *inputFile);
+//gets length of current line in the file
 int lengthOfLine(FILE *inputFile);
+//gets length of current line in the dictionary
+//Dictionary uses nl only and nor cr
 int lengthOfDict(FILE *inputFile);
+//binary search of dictionary. Finds location of word in dictionary
+//calls linear search when a dict entry starts with word
 int dictBinarySearch(char **dictionary, int *wordlen, int first, int last, char *word);
+//load the memory ** with the data from the file
 void loadMemFromFile(FILE *fileToLoad, char **memPointer, int numOfLines, int *lineLengths);
+//search the file by line with strstr to allow spaces
 int searchFileByLine(char **file, int *lens, int start, int end, int *lineFound, int *charFound, char *word);
+//write memory to file
 void writeMemToFile(FILE *fileToSave, char **memPointer, int numOfLines, int *lineLengths);
+//free the mempointer
 void dumpMem(char ***memPointer, int numOfLines, int **lineLengths);
+//malloc space for file
 void allocateMem(FILE *openFile, char ***memPointer, int *numOfLines, int **lineLengths);
+//malloc space for dict
 void allocateDict(FILE *openFile, char ***memPointer, int *numOfLines, int **lineLengths);
+//replace text with new text in a line
 void replaceWord(char **memPointer, int *lineLengths, int lineIndex, int charIndex, int oldWordLength, char *newWord);
+//linear search to find words like of because srtcmp doesn't find it
 int dictLinearSearch(char **dictionary, int *wordlen, int first, int last, char *word);
 
 int main(int argc, char *argv[]){
@@ -147,15 +170,94 @@ int main(int argc, char *argv[]){
         }
       }
     }
+    if(tolower(optionInput[0]) == 's' && tolower(optionInput[1]) == 'r'){
+      //Search
+      char searchString[65];
+      char replaceString[65];
+      char currentLetter, dummyClear = 0;
+      int validInput, i;
+      while(dummyClear != 10){
+        scanf("%c", &dummyClear);
+      }
+      printf("Enter string to search: ");
+      scanf("%c", &currentLetter);
+      if(currentLetter != 10){
+        searchString[0] = currentLetter;
+        i = 1;
+        validInput = 0;
+        while(!validInput){
+          scanf("%c", &currentLetter);
+          if(currentLetter == 10 || i == 64){
+            validInput = 1;
+            searchString[i] = 0;
+            if(i == 64 && currentLetter != 10){
+              dummyClear = 0;
+              while(dummyClear != 10){
+                scanf("%c", &dummyClear);
+              }
+            }
+          } else {
+            searchString[i] = currentLetter;
+          }
+          i++;
+        }
+      } else {
+        //error out if nothing passed in
+        printf("Bad/no Input\n");
+        return 1;
+      }
+      printf("Enter string to replace: ");
+      scanf("%c", &currentLetter);
+      if(currentLetter != 10){
+        replaceString[0] = currentLetter;
+        i = 1;
+        validInput = 0;
+        while(!validInput){
+          scanf("%c", &currentLetter);
+          if(currentLetter == 10 || i == 64){
+            validInput = 1;
+            replaceString[i] = 0;
+            if(i == 64 && currentLetter != 10){
+              dummyClear = 0;
+              while(dummyClear != 10){
+                scanf("%c", &dummyClear);
+              }
+            }
+          } else {
+            replaceString[i] = currentLetter;
+          }
+          i++;
+        }
+      } else {
+        //error out if nothing passed in
+        printf("Bad/no Input\n");
+        return 1;
+      }
+      //String input read
+      int foundLine = 0, foundIndex = 0;
+      int lengthOfFoundWord = searchFileByLine(lines, fileLineLengths, foundLine, fileNOL, &foundLine, &foundIndex, searchString);
+      if(lengthOfFoundWord == -1){
+        printf("None found!\n");
+      } else {
+        while(lengthOfFoundWord != -1){
+          printf("Found string at line: %i with index: %i and length: %i\nThe line is: %s", foundLine+1, foundIndex, lengthOfFoundWord, lines[foundLine]);
+          lengthOfFoundWord = searchFileByLine(lines, fileLineLengths, foundLine, fileNOL, &foundLine, &foundIndex, searchString);
+          replaceWord(lines, fileLineLengths, foundLine, foundIndex, lengthOfFoundWord, replaceString);
+          printf("New line is: %s\n", lines[foundLine]);
+        }
+      }
+    }
+    if(tolower(optionInput[0]) == 's' && tolower(optionInput[1]) == 'a'){
+      FILE *outputFile;
+      outputFile = fopen(argv[2], "w");
+      writeMemToFile(outputFile, lines, fileNOL, fileLineLengths);
+      fclose(outputFile);
+      return 0;
+    }
     if(tolower(optionInput[0]) == 'e' && tolower(optionInput[1]) == 'x'){
       return 0;
     }
   }
-
-  FILE *outputFile;
-  outputFile = fopen(argv[2], "w");
-  writeMemToFile(outputFile, lines, fileNOL, fileLineLengths);
-  fclose(outputFile);
 
   return 0;
 }
