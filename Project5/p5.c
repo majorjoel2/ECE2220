@@ -14,7 +14,9 @@ int searchFileByLine(char **file, int *lens, int start, int end, int *lineFound,
 void writeMemToFile(FILE *fileToSave, char **memPointer, int numOfLines, int *lineLengths);
 void dumpMem(char ***memPointer, int numOfLines, int **lineLengths);
 void allocateMem(FILE *openFile, char ***memPointer, int *numOfLines, int **lineLengths);
+void allocateDict(FILE *openFile, char ***memPointer, int *numOfLines, int **lineLengths);
 void replaceWord(char **memPointer, int *lineLengths, int lineIndex, int charIndex, int oldWordLength, char *newWord);
+int dictLinearSearch(char **dictionary, int *wordlen, int first, int last, char *word);
 
 int main(int argc, char *argv[]){
 
@@ -38,7 +40,8 @@ int main(int argc, char *argv[]){
 
   int fileNOL = 0, *fileLineLengths, dictNOL = 0, *dictLineLengths;
   allocateMem(inputFile, &lines, &fileNOL, &fileLineLengths);
-  allocateMem(inputFile, &dict, &dictNOL, &dictLineLengths);
+  allocateDict(dictFile, &dict, &dictNOL, &dictLineLengths);
+  printf("NOL: %i:%i\n", fileNOL, dictNOL);
 
   loadMemFromFile(inputFile, lines, fileNOL, fileLineLengths);
   loadMemFromFile(dictFile, dict, dictNOL, dictLineLengths);
@@ -55,34 +58,97 @@ int main(int argc, char *argv[]){
       char spellingWord[128];
       while(exitSP == 0){
 
-        if(isalpha(dict[line][length]) != 0){
-          printf("is alpha\n");
-          spellingWord[word] = dict[line][length];
+        //printf("line:%i,len:%i\n", line, length);
+        //printf("dict:(%i,%c)\n", lines[line][length],lines[line][length]);
+        if(isalpha(lines[line][length]) != 0){
+          //printf("is alpha %c\n", lines[line][length]);
+          spellingWord[word] = lines[line][length];
           word++;
         }
 
-        if(isalpha(dict[line][length]) == 0 && word != 0){
-          printf("found word\n");
+        if(isalpha(lines[line][length]) == 0 && word != 0){
+          //printf("found word\n");
           //found a word
           spellingWord[word] = 0;
           if(dictBinarySearch(dict, dictLineLengths, 0, dictNOL, spellingWord) == -1){
-            printf("Word not found %s:%i:%i\n", spellingWord, line, length);
+            printf("Word not found %s at line %i with index %i\n", spellingWord, line, length);
+          } else {
+            //printf("Word found %s\n", spellingWord);
           }
           word = 0;
         }
 
         length++;
         if(length >= fileLineLengths[line]){
-          printf("new line\n");
+          if(line+1 >= fileNOL){
+            spellingWord[word] = 0;
+            if(dictBinarySearch(dict, dictLineLengths, 0, dictNOL, spellingWord) == -1){
+              printf("Word not found %s at line %i with index %i\n", spellingWord, line, length);
+            } else {
+              //printf("Word found %s\n", spellingWord);
+            }
+            word = 0;
+          }
+          //printf("new line\n");
           length = 0;
           line++;
           word = 0;
         }
-        if(line > fileNOL){
+        if(line >= fileNOL){
           exitSP = 1;
         }
       }
 
+    }
+    if(tolower(optionInput[0]) == 's' && tolower(optionInput[1]) == 'e'){
+      //Search
+      char searchString[65];
+      char currentLetter, dummyClear = 0;
+      int validInput, i;
+      while(dummyClear != 10){
+        scanf("%c", &dummyClear);
+      }
+      printf("Enter string to search: ");
+      scanf("%c", &currentLetter);
+      if(currentLetter != 10){
+        searchString[0] = currentLetter;
+        i = 1;
+        validInput = 0;
+        while(!validInput){
+          scanf("%c", &currentLetter);
+          if(currentLetter == 10 || i == 64){
+            validInput = 1;
+            searchString[i] = 0;
+            if(i == 64 && currentLetter != 10){
+              dummyClear = 0;
+              while(dummyClear != 10){
+                scanf("%c", &dummyClear);
+              }
+            }
+          } else {
+            searchString[i] = currentLetter;
+          }
+          i++;
+        }
+      } else {
+        //error out if nothing passed in
+        printf("Bad/no Input\n");
+        return 1;
+      }
+      //String input read
+      int foundLine = 0, foundIndex = 0;
+      int lengthOfFoundWord = searchFileByLine(lines, fileLineLengths, foundLine, fileNOL, &foundLine, &foundIndex, searchString);
+      if(lengthOfFoundWord == -1){
+        printf("None found!\n");
+      } else {
+        while(lengthOfFoundWord != -1){
+          printf("Found string at line: %i with index: %i and length: %i\nThe line is: %s", foundLine+1, foundIndex, lengthOfFoundWord, lines[foundLine]);
+          lengthOfFoundWord = searchFileByLine(lines, fileLineLengths, foundLine, fileNOL, &foundLine, &foundIndex, searchString);
+        }
+      }
+    }
+    if(tolower(optionInput[0]) == 'e' && tolower(optionInput[1]) == 'x'){
+      return 0;
     }
   }
 
@@ -135,27 +201,33 @@ int lengthOfDict(FILE * inputFile){
 int dictBinarySearch(char **dictionary, int *wordlen, int first, int last, char *word){
   int i, middle;
   char *wordLower, *dictWordLower;
-  wordLower = (char *)malloc(strlen(word)*sizeof(char));
+  wordLower = (char *)malloc((strlen(word)+1)*sizeof(char));
   if(wordLower == NULL) printf("ERROR: Failed to allocate wordLower\n");
+  //printf("len:%li ", strlen(word));
   for(i = 0; i < strlen(word); i++){
     wordLower[i] = tolower(word[i]);
+    //printf("char:%i,%c ", wordLower[i], wordLower[i]);
   }
+  //printf("i:%i ", i);
+  wordLower[i] = 0;
+  return dictLinearSearch(dictionary, wordlen, first, last, wordLower);
+  //printf("B_lenw:%li\n",strlen(wordLower));
 
   while(first <= last){
     middle = first + (last-first) / 2;
 
     dictWordLower = (char *)malloc(wordlen[middle]*sizeof(char));
     if(dictWordLower == NULL) printf("ERROR: Failed to allocate dictWordLower\n");
-    for(i = 0; i < wordlen[middle]; i++){
+    for(i = 0; i < strlen(word); i++){
       dictWordLower[i] = tolower(dictionary[middle][i]);
     }
     dictWordLower[wordlen[middle]-1] = 0;
 
-    //printf("Searching %i/%i/%s\n", middle, strcmp(wordLower, dictWordLower), dictWordLower);
+    //printf("SearchingB %i/%i/%s\n", middle, strcmp(wordLower, dictWordLower), dictWordLower);
 
     if(strcmp(wordLower, dictWordLower) == 0){
-      free(wordLower);free(dictWordLower);
-      return middle;
+      free(dictWordLower);
+      return dictLinearSearch(dictionary, wordlen, first, middle+1, wordLower);
     }
 
     if(strcmp(wordLower, dictWordLower) > 0){
@@ -165,6 +237,34 @@ int dictBinarySearch(char **dictionary, int *wordlen, int first, int last, char 
     }
 
     free(dictWordLower);
+  }
+
+  return -1;
+}
+
+int dictLinearSearch(char **dictionary, int *wordlen, int first, int last, char *word){
+  int i, curLine;
+  char *dictWordLower;
+
+  //printf("First: %i, last: %i\n", first, last);
+  for(curLine = first; curLine < last; curLine++){
+    dictWordLower = (char *)malloc(wordlen[curLine]*sizeof(char));
+    if(dictWordLower == NULL) printf("ERROR: Failed to allocate dictWordLower\n");
+    for(i = 0; i < wordlen[curLine]; i++){
+      dictWordLower[i] = tolower(dictionary[curLine][i]);
+    }
+    dictWordLower[wordlen[curLine]-1] = 0;
+
+    //if(curLine == first) printf("SearchingL %i/%i/%s/%s\n", curLine, strcmp(word, dictWordLower), dictWordLower, word);
+    //printf("SearchingL %i/%i/%s/%s\n", curLine, strcmp(word, dictWordLower), dictWordLower, word);
+
+    if(strcmp(word, dictWordLower) == 0){
+      free(word);free(dictWordLower);
+      return curLine;
+    }
+
+    free(dictWordLower);
+
   }
 
   return -1;
@@ -194,17 +294,20 @@ int searchFileByLine(char **fileSearch, int *lens, int start, int end, int *line
   char *found;
   for(i = start; i < end; i++){
     found = strstr(fileSearch[i], word);
-    if(start == *lineFound && *charFound != 0){
+    if(i == *lineFound && *charFound != 0){
       char *subString;
-      subString = (char *)memcpy((void *)subString, (void *)(&fileSearch[start][*charFound+wordLength]), lens[start]-*charFound);
+      subString = (char *)malloc((lens[start]-*charFound)*sizeof(char));
+      memcpy(subString, (&fileSearch[start][*charFound+wordLength]), lens[start]-*charFound);
       //printf("Total: %s\nSub:%s", fileSearch[start], subString);
       found = strstr(subString, word);
       if(found){
         //printf("Found %i, %p, %p\n", i, found, subString);
         *lineFound = i;
         *charFound = ((int)(found-subString)) + *charFound + wordLength;
+        free(subString);
         return wordLength;
       }
+      free(subString);
     } else {
       if(found){
         //printf("Found %i, %p, %p\n", i, found, fileSearch[i]);
@@ -252,6 +355,21 @@ void allocateMem(FILE *openFile, char ***memPointer, int *numOfLines, int **line
   if(*memPointer == NULL) printf("ERROR: Failed to allocate memPointer\nCode: %p\n", openFile);
   for(i = 0; i < *numOfLines; i++){
     (*lineLengths)[i] = lengthOfLine(openFile);
+    //printf("Line Len %i = %i\n", i, len[i]);
+    (*memPointer)[i] = (char *)malloc(((*lineLengths)[i])*sizeof(char));
+    if((*memPointer)[i] == NULL) printf("ERROR: Failed to allocate memPointer[%i]\nCode: %p\n", i, openFile);
+  }
+}
+
+void allocateDict(FILE *openFile, char ***memPointer, int *numOfLines, int **lineLengths){
+  int i;
+  *numOfLines = numberOfLines(openFile);
+  *lineLengths = (int *)malloc(*numOfLines*sizeof(int));
+  if(*lineLengths == NULL) printf("ERROR: Failed to allocate lineLengths\nCode: %p\n", openFile);
+  *memPointer = (char **)malloc(*numOfLines*sizeof(char*));
+  if(*memPointer == NULL) printf("ERROR: Failed to allocate memPointer\nCode: %p\n", openFile);
+  for(i = 0; i < *numOfLines; i++){
+    (*lineLengths)[i] = lengthOfDict(openFile);
     //printf("Line Len %i = %i\n", i, len[i]);
     (*memPointer)[i] = (char *)malloc(((*lineLengths)[i])*sizeof(char));
     if((*memPointer)[i] == NULL) printf("ERROR: Failed to allocate memPointer[%i]\nCode: %p\n", i, openFile);
