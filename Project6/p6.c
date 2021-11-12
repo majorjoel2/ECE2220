@@ -36,6 +36,8 @@ union t_uint_32 {
 
 short int readShort(FILE *fileToRead);
 int readInt(FILE *fileToRead);
+struct tsHeader readHeader(FILE *inFile);
+struct tsInfoHeader readInfoHeader(FILE *inFile);
 
 int readRGB(FILE *colorFile, FILE *printFile, int row, int col);
 
@@ -56,61 +58,49 @@ int main(int argc, char *argv[]){
   struct tsHeader inputHeader;
   struct tsInfoHeader inputInfoHeader;
 
-  inputHeader.Type = readShort(inputFile);
-  inputHeader.Size = readInt(inputFile);
-  inputHeader.Reserved1 = readShort(inputFile);
-  inputHeader.Reserved2 = readShort(inputFile);
-  inputHeader.Offset = readInt(inputFile);
+  inputHeader = readHeader(inputFile);
 
-  inputInfoHeader.Size = readInt(inputFile);
-  inputInfoHeader.Width = readInt(inputFile);
-  inputInfoHeader.Height = readInt(inputFile);
-  inputInfoHeader.Planes = readShort(inputFile);
-  inputInfoHeader.Bits = readShort(inputFile);
-  inputInfoHeader.Compression = readInt(inputFile);
-  inputInfoHeader.ImageSize = readInt(inputFile);
-  inputInfoHeader.xResolution = readInt(inputFile);
-  inputInfoHeader.yResolution = readInt(inputFile);
-  inputInfoHeader.Colors = readInt(inputFile);
-  inputInfoHeader.ImportantColors = readInt(inputFile);
+  inputInfoHeader = readInfoHeader(inputFile);
 
-  fprintf(outputFile, "\"%s\"\n", argv[3]);
-  union t_uint_16 headerSplit;
-  headerSplit.number = inputHeader.Type;
-  fprintf(outputFile, "Header.Type = %c\nHeader.Type = %c\n", headerSplit.bytes[0], headerSplit.bytes[1]);
-  fprintf(outputFile, "Header.Size = %i\n", inputHeader.Size);
-  fprintf(outputFile, "Header.Offset = %i\n", inputHeader.Offset);
+  if(strcmp(argv[1], "read") == 0){
+    fprintf(outputFile, "\"%s\"\n", argv[3]);
+    union t_uint_16 headerSplit;
+    headerSplit.number = inputHeader.Type;
+    fprintf(outputFile, "Header.Type = %c\nHeader.Type = %c\n", headerSplit.bytes[0], headerSplit.bytes[1]);
+    fprintf(outputFile, "Header.Size = %i\n", inputHeader.Size);
+    fprintf(outputFile, "Header.Offset = %i\n", inputHeader.Offset);
 
-  fprintf(outputFile, "InfoHeader.Size = %i\n", inputInfoHeader.Size);
-  fprintf(outputFile, "InfoHeader.Width = %i\n", inputInfoHeader.Width);
-  fprintf(outputFile, "InfoHeader.Height = %i\n", inputInfoHeader.Height);
-  fprintf(outputFile, "InfoHeader.Planes = %i\n", inputInfoHeader.Planes);
-  fprintf(outputFile, "InfoHeader.Bits = %i\n", inputInfoHeader.Bits);
-  fprintf(outputFile, "InfoHeader.Compression = %i\n", inputInfoHeader.Compression);
-  fprintf(outputFile, "InfoHeader.ImageSize = %i\n", inputInfoHeader.ImageSize);
-  fprintf(outputFile, "InfoHeader.xResolution = %i\n", inputInfoHeader.xResolution);
-  fprintf(outputFile, "InfoHeader.yResolution = %i\n", inputInfoHeader.yResolution);
-  fprintf(outputFile, "InfoHeader.Colors = %i\n", inputInfoHeader.Colors);
-  fprintf(outputFile, "InfoHeader.ImportantColors = %i\n", inputInfoHeader.ImportantColors);
+    fprintf(outputFile, "InfoHeader.Size = %i\n", inputInfoHeader.Size);
+    fprintf(outputFile, "InfoHeader.Width = %i\n", inputInfoHeader.Width);
+    fprintf(outputFile, "InfoHeader.Height = %i\n", inputInfoHeader.Height);
+    fprintf(outputFile, "InfoHeader.Planes = %i\n", inputInfoHeader.Planes);
+    fprintf(outputFile, "InfoHeader.Bits = %i\n", inputInfoHeader.Bits);
+    fprintf(outputFile, "InfoHeader.Compression = %i\n", inputInfoHeader.Compression);
+    fprintf(outputFile, "InfoHeader.ImageSize = %i\n", inputInfoHeader.ImageSize);
+    fprintf(outputFile, "InfoHeader.xResolution = %i\n", inputInfoHeader.xResolution);
+    fprintf(outputFile, "InfoHeader.yResolution = %i\n", inputInfoHeader.yResolution);
+    fprintf(outputFile, "InfoHeader.Colors = %i\n", inputInfoHeader.Colors);
+    fprintf(outputFile, "InfoHeader.ImportantColors = %i\n", inputInfoHeader.ImportantColors);
 
-  int padding = inputInfoHeader.Width % 4;
+    int padding = inputInfoHeader.Width % 4;
 
-  fprintf(outputFile, "Padding = %i\n", padding);
+    fprintf(outputFile, "Padding = %i\n", padding);
 
-  rewind(inputFile);
-  int i, row, col;
-  for(i = 0; i < inputHeader.Offset; i++){
-    fprintf(outputFile, "Byte[%02i] = %03i\n", i, getc(inputFile));
-  }
-
-  for(row = 0; row < inputInfoHeader.Height; row++){
-    for(col = 0; col < inputInfoHeader.Width; col++){
-      //rgb
-      readRGB(inputFile, outputFile, row, col);
+    rewind(inputFile);
+    int i, row, col;
+    for(i = 0; i < inputHeader.Offset; i++){
+      fprintf(outputFile, "Byte[%02i] = %03i\n", i, getc(inputFile));
     }
-    //padding
-    for(i = 0; i < padding; i++){
-      fprintf(outputFile, "Padding[%02i] = %03i\n", i, getc(inputFile));
+
+    for(row = 0; row < inputInfoHeader.Height; row++){
+      for(col = 0; col < inputInfoHeader.Width; col++){
+        //rgb
+        readRGB(inputFile, outputFile, row, col);
+      }
+      //padding
+      for(i = 0; i < padding; i++){
+        fprintf(outputFile, "Padding[%02i] = %03i\n", i, getc(inputFile));
+      }
     }
   }
 
@@ -142,4 +132,30 @@ int readRGB(FILE *colorFile, FILE *printFile, int row, int col){
   red = getc(colorFile);
   fprintf(printFile, "RGB[%02i,%02i] = %03i.%03i.%03i\n", row, col, red, green, blue);
   return 1;
+}
+
+struct tsHeader readHeader(FILE *inFile){
+  struct tsHeader output;
+  output.Type = readShort(inFile);
+  output.Size = readInt(inFile);
+  output.Reserved1 = readShort(inFile);
+  output.Reserved2 = readShort(inFile);
+  output.Offset = readInt(inFile);
+  return output;
+}
+
+struct tsInfoHeader readInfoHeader(FILE *inFile){
+  struct tsInfoHeader output;
+  output.Size = readInt(inFile);
+  output.Width = readInt(inFile);
+  output.Height = readInt(inFile);
+  output.Planes = readShort(inFile);
+  output.Bits = readShort(inFile);
+  output.Compression = readInt(inFile);
+  output.ImageSize = readInt(inFile);
+  output.xResolution = readInt(inFile);
+  output.yResolution = readInt(inFile);
+  output.Colors = readInt(inFile);
+  output.ImportantColors = readInt(inFile);
+  return output;
 }
