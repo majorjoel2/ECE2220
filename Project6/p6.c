@@ -37,6 +37,8 @@ union t_uint_32 {
 short int readShort(FILE *fileToRead);
 int readInt(FILE *fileToRead);
 
+int readRGB(FILE *colorFile, FILE *printFile, int row, int col);
+
 int main(int argc, char *argv[]){
   //
   //open file
@@ -91,6 +93,27 @@ int main(int argc, char *argv[]){
   fprintf(outputFile, "InfoHeader.Colors = %i\n", inputInfoHeader.Colors);
   fprintf(outputFile, "InfoHeader.ImportantColors = %i\n", inputInfoHeader.ImportantColors);
 
+  int padding = inputInfoHeader.Width % 4;
+
+  fprintf(outputFile, "Padding = %i\n", padding);
+
+  rewind(inputFile);
+  int i, row, col;
+  for(i = 0; i < inputHeader.Offset; i++){
+    fprintf(outputFile, "Byte[%02i] = %03i\n", i, getc(inputFile));
+  }
+
+  for(row = 0; row < inputInfoHeader.Height; row++){
+    for(col = 0; col < inputInfoHeader.Width; col++){
+      //rgb
+      readRGB(inputFile, outputFile, row, col);
+    }
+    //padding
+    for(i = 0; i < padding; i++){
+      fprintf(outputFile, "Padding[%02i] = %03i\n", i, getc(inputFile));
+    }
+  }
+
   fclose(inputFile);
   fclose(outputFile);
   return 0;
@@ -110,4 +133,13 @@ int readInt(FILE *fileToRead){
   output.bytes[2] = getc(fileToRead);
   output.bytes[3] = getc(fileToRead);
   return output.number;
+}
+
+int readRGB(FILE *colorFile, FILE *printFile, int row, int col){
+  char red, green, blue;
+  blue = getc(colorFile);
+  green = getc(colorFile);
+  red = getc(colorFile);
+  fprintf(printFile, "RGB[%02i,%02i] = %03i.%03i.%03i\n", row, col, red, green, blue);
+  return 1;
 }
