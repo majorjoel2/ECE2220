@@ -119,7 +119,7 @@ int main(int argc, char *argv[]){
       }
     }
   } else if(strcmp(argv[1], "edge") == 0){
-    printf("edge\n");
+    //printf("edge\n");
   } else {
     printf("Bad command input\nCommand: [exe] [read/edge] [input file] [output file (read)]\n");
     fclose(inputFile);

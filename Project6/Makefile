@@ -47,21 +47,11 @@ edgeot:
 	./p6.out edge "Tiger.bmp"
 	./p6.out edge "USC.bmp"
 
-read:
-	touch black
-	touch white
-	touch orange
-	touch other
+read: black white orange other
 
-edge:
-	touch edgeb
-	touch edgew
-	touch edgeor
-	touch edgeot
+edge: edgeb edgew edgeor edgeot
 
-all:
-	touch read
-	touch edge
+all: read edge
 
 clean:
 	-find *-edge.bmp -type f -delete
