@@ -164,6 +164,38 @@ int main(int argc, char *argv[]){
       }
     }
     //Save to file
+    fwrite(&inputHeader.Type, sizeof(inputHeader.Type), 1, outputFile);
+    fwrite(&inputHeader.Size, sizeof(inputHeader.Size), 1, outputFile);
+    fwrite(&inputHeader.Reserved1, sizeof(inputHeader.Reserved1), 1, outputFile);
+    fwrite(&inputHeader.Reserved2, sizeof(inputHeader.Reserved2), 1, outputFile);
+    fwrite(&inputHeader.Offset, sizeof(inputHeader.Offset), 1, outputFile);
+
+    fwrite(&inputInfoHeader.Size, sizeof(inputInfoHeader.Size), 1, outputFile);
+    fwrite(&inputInfoHeader.Width, sizeof(inputInfoHeader.Width), 1, outputFile);
+    fwrite(&inputInfoHeader.Height, sizeof(inputInfoHeader.Height), 1, outputFile);
+    fwrite(&inputInfoHeader.Planes, sizeof(inputInfoHeader.Planes), 1, outputFile);
+    fwrite(&inputInfoHeader.Bits, sizeof(inputInfoHeader.Bits), 1, outputFile);
+    fwrite(&inputInfoHeader.Compression, sizeof(inputInfoHeader.Compression), 1, outputFile);
+    fwrite(&inputInfoHeader.ImageSize, sizeof(inputInfoHeader.ImageSize), 1, outputFile);
+    fwrite(&inputInfoHeader.xResolution, sizeof(inputInfoHeader.xResolution), 1, outputFile);
+    fwrite(&inputInfoHeader.yResolution, sizeof(inputInfoHeader.yResolution), 1, outputFile);
+    fwrite(&inputInfoHeader.Colors, sizeof(inputInfoHeader.Colors), 1, outputFile);
+    fwrite(&inputInfoHeader.ImportantColors, sizeof(inputInfoHeader.ImportantColors), 1, outputFile);
+
+    for(row = 0; row < inputInfoHeader.Height; row ++){
+      for(col = 0; col < inputInfoHeader.Width; col++){
+        outPixel = *(outputPicture + row*inputInfoHeader.Width + col);
+        fwrite(&outPixel.blue, sizeof(unsigned char), 1, outputFile);
+        fwrite(&outPixel.green, sizeof(unsigned char), 1, outputFile);
+        fwrite(&outPixel.red, sizeof(unsigned char), 1, outputFile);
+      }
+      for(i = 0; i < padding; i++){
+        //clear out padding
+        unsigned char temp = 0;
+        fwrite(&temp, sizeof(unsigned char), 1, outputFile);
+      }
+    }
+
   } else {
     printf("Bad command input\nCommand: [exe] [read/edge] [input file] [output file (read)]\n");
     fclose(inputFile);
