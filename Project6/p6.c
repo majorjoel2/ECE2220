@@ -24,6 +24,10 @@ struct tsInfoHeader
    unsigned int ImportantColors;/* Important colors        */
 };
 
+struct tsPixel{
+  unsigned char red, green, blue;
+};
+
 union t_uint_16 {
   short int number;
   char bytes[2];
@@ -40,6 +44,7 @@ struct tsHeader readHeader(FILE *inFile);
 struct tsInfoHeader readInfoHeader(FILE *inFile);
 
 int readRGB(FILE *colorFile, FILE *printFile, int row, int col);
+struct tsPixel structReadRGB(FILE *colorFile);
 
 int main(int argc, char *argv[]){
   //
@@ -120,6 +125,15 @@ int main(int argc, char *argv[]){
     }
   } else if(strcmp(argv[1], "edge") == 0){
     //printf("edge\n");
+    int row, col;
+    struct tsPixel *picture;
+    picture = (struct tsPixel *)malloc(inputInfoHeader.Height * inputInfoHeader.Width * sizeof(struct tsPixel));
+    if(picture == NULL) printf("Failed to allocate memory for pixels\n");
+    for(row = 0; row < inputInfoHeader.Height; row ++){
+      for(col = 0; col < inputInfoHeader.Width; col++){
+        *(picture + row*inputInfoHeader.Width + col) = structReadRGB(inputFile);
+      }
+    }
   } else {
     printf("Bad command input\nCommand: [exe] [read/edge] [input file] [output file (read)]\n");
     fclose(inputFile);
@@ -155,6 +169,18 @@ int readRGB(FILE *colorFile, FILE *printFile, int row, int col){
   red = getc(colorFile);
   fprintf(printFile, "RGB[%02i,%02i] = %03u.%03u.%03u\n", row, col, red, green, blue);
   return 1;
+}
+
+struct tsPixel structReadRGB(FILE *colorFile){
+  struct tsPixel output;
+  unsigned int red, green, blue;
+  blue = getc(colorFile);
+  green = getc(colorFile);
+  red = getc(colorFile);
+  output.red = (unsigned int)red;
+  output.green = (unsigned int)green;
+  output.blue = (unsigned int)blue;
+  return output;
 }
 
 struct tsHeader readHeader(FILE *inFile){
