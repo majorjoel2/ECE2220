@@ -49,11 +49,27 @@ int main(int argc, char *argv[]){
     printf("ERROR: Failed to load Input File\n");
     return 1;
   }
-  //create file
-  FILE *outputFile = fopen(argv[3], "w");
-  if(outputFile == NULL) {
-    printf("ERROR: Failed to create Output File\n");
-    return 1;
+  FILE *outputFile;
+  if(strcmp(argv[1], "read") == 0){
+    //create file
+    outputFile = fopen(argv[3], "w");
+    if(outputFile == NULL) {
+      printf("ERROR: Failed to create Output File\n");
+      return 1;
+    }
+  }
+  if(strcmp(argv[1], "edge") == 0){
+    //create file-edge
+    char *subString;
+    int lenOfFile = strlen(argv[2]);
+    subString = (char *)malloc((lenOfFile+5)*sizeof(char));
+    memcpy(subString, (argv[2]), (lenOfFile-4));
+    strcat(subString, "-edge.bmp");
+    outputFile = fopen(subString, "w");
+    if(outputFile == NULL) {
+      printf("ERROR: Failed to create Output File\n");
+      return 1;
+    }
   }
   struct tsHeader inputHeader;
   struct tsInfoHeader inputInfoHeader;
@@ -102,6 +118,13 @@ int main(int argc, char *argv[]){
         fprintf(outputFile, "Padding[%02i] = %03i\n", i, getc(inputFile));
       }
     }
+  } else if(strcmp(argv[1], "edge") == 0){
+    printf("edge\n");
+  } else {
+    printf("Bad command input\nCommand: [exe] [read/edge] [input file] [output file (read)]\n");
+    fclose(inputFile);
+    fclose(outputFile);
+    return 1;
   }
 
   fclose(inputFile);
@@ -126,11 +149,11 @@ int readInt(FILE *fileToRead){
 }
 
 int readRGB(FILE *colorFile, FILE *printFile, int row, int col){
-  char red, green, blue;
+  unsigned int red, green, blue;
   blue = getc(colorFile);
   green = getc(colorFile);
   red = getc(colorFile);
-  fprintf(printFile, "RGB[%02i,%02i] = %03i.%03i.%03i\n", row, col, red, green, blue);
+  fprintf(printFile, "RGB[%02i,%02i] = %03u.%03u.%03u\n", row, col, red, green, blue);
   return 1;
 }
 
