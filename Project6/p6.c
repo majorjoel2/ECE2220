@@ -46,6 +46,9 @@ struct tsInfoHeader readInfoHeader(FILE *inFile);
 int readRGB(FILE *colorFile, FILE *printFile, int row, int col);
 struct tsPixel structReadRGB(FILE *colorFile);
 
+int isEdge(struct tsInfoHeader, int row, int col);
+int edgeDetect(int north, int east, int south, int west, int center);
+
 int main(int argc, char *argv[]){
   //
   //open file
@@ -125,15 +128,42 @@ int main(int argc, char *argv[]){
     }
   } else if(strcmp(argv[1], "edge") == 0){
     //printf("edge\n");
-    int row, col;
-    struct tsPixel *picture;
+    int row, col, i;
+    int padding = inputInfoHeader.Width % 4;
+    struct tsPixel *picture, *outputPicture;
     picture = (struct tsPixel *)malloc(inputInfoHeader.Height * inputInfoHeader.Width * sizeof(struct tsPixel));
     if(picture == NULL) printf("Failed to allocate memory for pixels\n");
+    outputPicture = (struct tsPixel *)malloc(inputInfoHeader.Height * inputInfoHeader.Width * sizeof(struct tsPixel));
+    if(outputPicture == NULL) printf("Failed to allocate memory for output picture\n");
     for(row = 0; row < inputInfoHeader.Height; row ++){
       for(col = 0; col < inputInfoHeader.Width; col++){
         *(picture + row*inputInfoHeader.Width + col) = structReadRGB(inputFile);
       }
+      for(i = 0; i < padding; i++){
+        //clear out padding
+        getc(inputFile);
+      }
     }
+    //do Edge Detect
+    struct tsPixel tempPixel_N, tempPixel_S, tempPixel_E, tempPixel_W, tempPixel_C, outPixel;
+    for(row = 0; row < inputInfoHeader.Height; row ++){
+      for(col = 0; col < inputInfoHeader.Width; col++){
+        tempPixel_C = *(picture + row*inputInfoHeader.Width + col);
+        if(isEdge(inputInfoHeader, row, col)){
+          outPixel = tempPixel_C;
+        } else {
+          tempPixel_N = *(picture + (row+1)*inputInfoHeader.Width + (col));
+          tempPixel_E = *(picture + (row)*inputInfoHeader.Width + (col+1));
+          tempPixel_S = *(picture + (row-1)*inputInfoHeader.Width + (col));
+          tempPixel_W = *(picture + (row)*inputInfoHeader.Width + (col-1));
+          outPixel.red = edgeDetect(tempPixel_N.red, tempPixel_E.red, tempPixel_S.red, tempPixel_W.red, tempPixel_C.red);
+          outPixel.green = edgeDetect(tempPixel_N.green, tempPixel_E.green, tempPixel_S.green, tempPixel_W.green, tempPixel_C.green);
+          outPixel.blue = edgeDetect(tempPixel_N.blue, tempPixel_E.blue, tempPixel_S.blue, tempPixel_W.blue, tempPixel_C.blue);
+        }
+        *(outputPicture + row*inputInfoHeader.Width + col) = outPixel;
+      }
+    }
+    //Save to file
   } else {
     printf("Bad command input\nCommand: [exe] [read/edge] [input file] [output file (read)]\n");
     fclose(inputFile);
@@ -207,4 +237,12 @@ struct tsInfoHeader readInfoHeader(FILE *inFile){
   output.Colors = readInt(inFile);
   output.ImportantColors = readInt(inFile);
   return output;
+}
+
+int isEdge(struct tsInfoHeader inHead, int row, int col){
+  return (row == 0) || (col == 0) || (row+1 == inHead.Height) || (col+1 == inHead.Width);
+}
+
+int edgeDetect(int north, int east, int south, int west, int center){
+  return (4 * center) + (-1 * north) + (-1 * east) + (-1 * south) + (-1 * west);
 }
