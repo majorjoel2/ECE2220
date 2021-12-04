@@ -66,12 +66,12 @@ int openTerminal(FILE **curTermPtr, int *curTermNum){
   sprintf(terminalName, "/dev/pts/%i", *curTermNum);
   (*curTermNum)++;
   //printf("%s\n", terminalName);
-  *curTermPtr = fopen(terminalName, "r");
+  *curTermPtr = fopen(terminalName, "w");
   while(*curTermPtr == NULL && *curTermNum < 1000){
     sprintf(terminalName, "/dev/pts/%i", *curTermNum);
     (*curTermNum)++;
     //printf("%s\n", terminalName);
-    *curTermPtr = fopen(terminalName, "r");
+    *curTermPtr = fopen(terminalName, "w");
   }
   return 0;
 }
