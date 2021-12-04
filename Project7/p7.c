@@ -3,26 +3,55 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <sys/wait.h>
 
 int openTerminal(FILE **curTermPtr, int *curTermNum);
+int baseControl(FILE *openTerminal);
+int bomberControl(FILE *openTerminal);
 
 int main(int argc, char *argv[]){
-  FILE *terminal1, *terminal2, *terminal3, *terminal4;
-  int currentTerminal = 1;
-  openTerminal(&terminal1, &currentTerminal);
-  openTerminal(&terminal2, &currentTerminal);
-  openTerminal(&terminal3, &currentTerminal);
-  openTerminal(&terminal4, &currentTerminal);
+  FILE *tBase, *tBomber[3];
+  int currentTerminal = 1, forkTracker = -1, currentBomber = 0;
+  openTerminal(&tBase, &currentTerminal);
+  openTerminal(&tBomber[0], &currentTerminal);
+  openTerminal(&tBomber[1], &currentTerminal);
+  openTerminal(&tBomber[2], &currentTerminal);
   //printf("term num %i\n", currentTerminal);
   if(currentTerminal >= 1000){
     printf("ERROR 104: No open Terminals. Open four terminals.\n");
     return 104;
   }
 
-  fclose(terminal1);
-  fclose(terminal2);
-  fclose(terminal3);
-  fclose(terminal4);
+  //Make bomber forks
+  forkTracker = fork();
+  while(forkTracker == 0 && currentBomber < 3){
+    //printf("fk: %i; cb: %i\n", forkTracker, currentBomber);
+    currentBomber++;
+    if(currentBomber < 3){
+      forkTracker = fork();
+    }
+  }
+
+  //Use bomber forks
+  printf("fk: %i; cb: %i\n", forkTracker, currentBomber);
+  if(forkTracker > 0){
+    //Not zero and not fork error
+    //Therefore spawn bomber process
+    fprintf(tBomber[currentBomber], "Bomber with id %i\n", getpid());
+  } else if(forkTracker == 0){
+    //Primary process
+    //Therefore spawn base process
+    fprintf(tBase, "Base with id %i\n", getpid());
+  } else {
+    printf("ERROR 106: Failed to make Fork\n");
+    return 106;
+  }
+
+  fclose(tBase);
+  fclose(tBomber[0]);
+  fclose(tBomber[1]);
+  fclose(tBomber[2]);
   return 0;
 }
 
