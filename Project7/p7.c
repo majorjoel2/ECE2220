@@ -1,3 +1,16 @@
+/**
+ * Joel Tanner
+ * 11-12-2021
+ *
+ * The goal of this project is use forks and signals
+ *
+ * I am using some global variables to share memory between forks and to allow
+ * the signal handelers to interact with the main code.
+ *
+ * Known Issues:
+ * SIGUSR2 from Bomber to base not working. Unknown reason commented out
+ */
+
 //Libraries used in this program
 #include <stdio.h>
 #include <ctype.h>
@@ -9,6 +22,7 @@
 #include <sys/mman.h>
 #include <signal.h>
 
+//Defines for the bit manipulation for the activePlanes
 #define CRASHED  0b00000001
 #define BOMBLESS 0b00000010
 #define LANDED   0b00000100
@@ -24,29 +38,40 @@ static int *t1PID, *t2PID, *t3PID, *activePlanes;
 //These need to be global variables so that the signal handlers can manipulate them
 int fuel = 100, bombs = 8, crashedPlane = 0;
 
+//Opens the next avaliable terminal
 int openTerminal(FILE **curTermPtr, int *curTermNum);
+//Runs code for the base
 int baseControl(FILE *openTerminal);
+//runs code for the bomber
 int bomberControl(FILE *openTerminal, int id);
+//Updaes the shared memory values
 int writeBomberPID(int whichBomber, int bomberPID);
+//gets the shared memory value
 int getPID(int id);
+//signal handeler for dropping bombs
 void bombsAway(int sig);
+//signal handeler for refueling
 void refuelBomber(int sig);
+//signal handeler for plane crash
+//Doesn't trigger/work probably because printf issue with handeler tasks
 void planeCrash(int sig);
+//gets the bomber define from the given id
 int getBomber(int id);
 
 int main(int argc, char *argv[]){
+  //open terminals
   FILE *tBase, *tBomber[3];
   int currentTerminal = 1, forkTracker = -1, currentBomber = 0;
   openTerminal(&tBase, &currentTerminal);
   openTerminal(&tBomber[0], &currentTerminal);
   openTerminal(&tBomber[1], &currentTerminal);
   openTerminal(&tBomber[2], &currentTerminal);
-  //printf("term num %i\n", currentTerminal);
+
+  //Error our if terminals not found
   if(currentTerminal >= 1000){
     printf("ERROR 104: No open Terminals. Open four terminals.\n");
     return 104;
   }
-  printf("pp %i\n", getpid());
 
   //Make vaiables that can be used across the fork
   t1PID = mmap(NULL, sizeof(*t1PID), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
@@ -54,6 +79,7 @@ int main(int argc, char *argv[]){
   t3PID = mmap(NULL, sizeof(*t3PID), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
   activePlanes = mmap(NULL, sizeof(*activePlanes), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 
+  //Set all planes to landed
   *activePlanes = 0x00040404;
 
   //Dtsplay Program Start time
@@ -64,7 +90,6 @@ int main(int argc, char *argv[]){
   //Make bomber forks
   forkTracker = fork();
   while(forkTracker == 0 && currentBomber < 3){
-    //printf("fk: %i; cb: %i\n", forkTracker, currentBomber);
     currentBomber++;
     if(currentBomber < 3){
       forkTracker = fork();
@@ -72,19 +97,16 @@ int main(int argc, char *argv[]){
   }
 
   //Use bomber forks
-  printf("fk: %i; cb: %i\n", forkTracker, currentBomber);
   if(forkTracker > 0){
     //Not zero and not fork error
     //Therefore spawn bomber process
-    fprintf(tBomber[currentBomber], "Bomber with id %i\n", getpid());
     writeBomberPID(currentBomber, getpid());
     bomberControl(tBomber[currentBomber], currentBomber);
   } else if(forkTracker == 0){
     //Primary process
     //Therefore spawn base process
-    fprintf(tBase, "Base with id %i\n", getpid());
-    //printf("pids %i %i %i\n", *t1PID, *t2PID, *t3PID);
     baseControl(tBase);
+    //kill bombers if base exits
     kill(*t1PID, SIGKILL);
     kill(*t2PID, SIGKILL);
     kill(*t3PID, SIGKILL);
@@ -93,6 +115,7 @@ int main(int argc, char *argv[]){
     return 106;
   }
 
+  //close all terminals
   fclose(tBase);
   fclose(tBomber[0]);
   fclose(tBomber[1]);
@@ -104,14 +127,14 @@ int openTerminal(FILE **curTermPtr, int *curTermNum){
   char terminalName[16];// "/dev/pts/#"
   sprintf(terminalName, "/dev/pts/%i", *curTermNum);
   (*curTermNum)++;
-  //printf("%s\n", terminalName);
   *curTermPtr = fopen(terminalName, "r+");
+  //chech for an avaliable terminal up to 1000
   while(*curTermPtr == NULL && *curTermNum < 1000){
     sprintf(terminalName, "/dev/pts/%i", *curTermNum);
     (*curTermNum)++;
-    //printf("%s\n", terminalName);
     *curTermPtr = fopen(terminalName, "r+");
   }
+  //Pass by refrence so no return
   return 0;
 }
 
@@ -165,14 +188,15 @@ int baseControl(FILE *openTerminal){
   char input[16];
   char command[8];
   int inputID = -1;
+  //supposed to check for plane crash but doesn't work
   signal(SIGUSR2, planeCrash);
   while(loop == 0){
+    //print options
     fprintf(openTerminal, "Command list: launch, bomb [id], refuel [id], status, quit\n");
-    printf("Enter Command: ");
+    fprintf(openTerminal, "Enter Command: ");
     fgets(input,16,stdin);
+    //seperate into command and number
     sscanf(input, "%s%i", command, &inputID);
-    //printf("cmp %i\n", strcmp(command, "launch"));
-    //printf("cmd %s, id %i\n", input, inputID);
     if(strcmp(command, "launch") == 0){
       //launch
       if((getBomber(0) & *activePlanes) != 0){
@@ -189,12 +213,15 @@ int baseControl(FILE *openTerminal){
       }
     }
     if(strcmp(command, "bomb") == 0){
+      //send bomb sig
       kill(inputID, SIGUSR1);
     }
     if(strcmp(command, "refuel") == 0){
+      //send refuel sig
       kill(inputID, SIGUSR2);
     }
     if(strcmp(command, "status") == 0){
+      //print status table
       fprintf(openTerminal, "Bomber %i %s\n", getPID(0), ((getBomber(0) & *activePlanes) == 0) ? "Flying" : "Landed");
       fprintf(openTerminal, "Bomber %i %s\n", getPID(1), ((getBomber(1) & *activePlanes) == 0) ? "Flying" : "Landed");
       fprintf(openTerminal, "Bomber %i %s\n", getPID(2), ((getBomber(2) & *activePlanes) == 0) ? "Flying" : "Landed");
@@ -213,7 +240,7 @@ int bomberControl(FILE *openTerminal, int id){
   signal(SIGUSR2, refuelBomber);
   while(runBomber == 0){
     if((getBomber(id) & *activePlanes) == 0){
-      //launch plane
+      //launch plane with full fuel and bombs
       fuel = 100;
       bombs = 8;
       int upTime = 0, lastBomb = bombs;
@@ -223,23 +250,28 @@ int bomberControl(FILE *openTerminal, int id){
           fprintf(openTerminal, "Bombardier %i to base, %i gallons left and %i bombs left\n", getPID(id), fuel, bombs);
         }
         if(fuel <= 5){
+          //prints low fuel
           fprintf(openTerminal, "Plane %i almost out of Fuel!\n", getPID(id));
         }
         if(fuel <= 0){
+          //crahses plane
           *activePlanes |= (CRASHED << (id * 8));
           //kill((getppid()+1), SIGUSR2);
           fprintf(openTerminal, "Mayday, mayday! Plane %i ditching.\n", getPID(id));
           upTime = -404;
         }
+        //bomb command spam prevention so it will drop all bombs
         while(lastBomb != bombs){
           lastBomb--;
           fprintf(openTerminal, "Bombardier %i to base, bomb dropped, %i bombs left\n", getPID(id), lastBomb);
         }
         if(bombs <= 0){
+          //return plane if bombless
           *activePlanes |= (BOMBLESS << (id * 8));
           fprintf(openTerminal, "Bombay Empty, Returning Home\n");
           upTime = -100;
         }
+        //keep track of uptime and fuel
         upTime++;
         fuel -= 5;
         sleep(1);
